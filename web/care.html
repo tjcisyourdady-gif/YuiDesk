@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>桌宠养成</title>
+  <style>
+    :root {
+      --bg: #faf9f7;
+      --surface: #ffffff;
+      --subtle: #f3f0eb;
+      --border: #e4ddd4;
+      --text: #1f2328;
+      --muted: #767d87;
+      --accent: #e56b4d;
+      --accent-hover: #d35a3d;
+      --accent-soft: #fdf0ec;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: transparent;
+      font-family: "Microsoft YaHei UI", "Segoe UI", sans-serif;
+      color: var(--text);
+      font-size: 12.5px;
+      overflow: hidden;
+    }
+    .card {
+      margin: 6px 8px 8px;
+      height: calc(100vh - 14px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(20, 24, 32, 0.16);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .header {
+      padding: 10px 12px 8px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .title-group { display: flex; align-items: center; gap: 6px; min-width: 0; }
+    .pet-name { font-size: 14px; font-weight: 700; cursor: pointer; border-bottom: 1px dashed transparent; }
+    .pet-name:hover { border-bottom-color: var(--accent); color: var(--accent); }
+    .lv-badge { padding: 2px 7px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .head-actions { display: flex; align-items: center; gap: 6px; }
+    .coin-pill { padding: 2px 8px; border-radius: 999px; background: var(--subtle); border: 1px solid var(--border); font-size: 11.5px; font-weight: 600; color: #b45309; }
+    .tiny-btn { border: none; background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; padding: 2px 5px; border-radius: 6px; }
+    .tiny-btn:hover { background: var(--subtle); color: var(--text); }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      padding: 6px 10px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .tab-btn {
+      height: 26px;
+      border-radius: 7px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      background: var(--surface);
+      border-color: var(--border);
+      color: var(--accent);
+    }
+
+    .body {
+      flex: 1;
+      padding: 10px 12px;
+      overflow-y: auto;
+    }
+    .pane { display: none; flex-direction: column; gap: 9px; }
+    .pane.active { display: flex; }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 9px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+    }
+    .status-text { font-size: 12px; color: var(--muted); }
+    .primary-sm {
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 6px;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .primary-sm:hover { background: var(--accent-hover); }
+    .primary-sm:disabled { background: var(--subtle); color: var(--muted); cursor: default; }
+    .outline-sm {
+      height: 24px;
+      padding: 0 9px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 11.5px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .outline-sm:hover { border-color: var(--accent); color: var(--accent); }
+
+    .bars { display: flex; flex-direction: column; gap: 6px; }
+    .bar-item { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 7px; font-size: 12px; }
+    .bar-track { height: 7px; border-radius: 999px; background: var(--subtle); overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 999px; transition: width 0.3s ease; }
+    .fill-hunger { background: #f59e0b; }
+    .fill-mood { background: #ec4899; }
+    .fill-energy { background: #10b981; }
+    .fill-exp { background: #e56b4d; }
+    .bar-val { text-align: right; font-size: 11px; color: var(--muted); }
+
+    .actions-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+    .act-btn {
+      padding: 7px 9px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .act-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+    .act-name { font-size: 12px; font-weight: 600; }
+    .act-meta { font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+
+    .item-list { display: flex; flex-direction: column; gap: 6px; }
+    .item-card {
+      padding: 8px 10px;
+      border-radius: 9px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .item-info { min-width: 0; }
+    .item-title { font-size: 12.5px; font-weight: 600; }
+    .item-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .item-btns { display: flex; gap: 5px; flex-shrink: 0; }
+
+    .section-title { font-size: 11.5px; font-weight: 700; color: var(--muted); margin-top: 2px; }
+    .ach-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+    .ach-card {
+      padding: 7px 9px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      opacity: 0.55;
+    }
+    .ach-card.unlocked {
+      opacity: 1;
+      border-color: rgba(229, 107, 77, 0.5);
+      background: var(--accent-soft);
+    }
+    .ach-title { font-size: 12px; font-weight: 600; }
+    .ach-desc { font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+
+    .logs-box { padding: 7px 10px; border-radius: 9px; background: var(--bg); border: 1px solid var(--border); }
+    .log-line { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+    .toast { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); padding: 5px 12px; border-radius: 999px; background: #1f2328; color: #fff; font-size: 11.5px; z-index: 99; white-space: nowrap; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <div class="title-group">
+        <span id="petName" class="pet-name" title="点击修改昵称">小唯</span>
+        <span id="lvBadge" class="lv-badge">Lv.1 初遇同桌</span>
+      </div>
+      <div class="head-actions">
+        <span id="coinPill" class="coin-pill">100 币</span>
+        <button id="btnHide" class="tiny-btn">收起</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-pane="interact">互动陪伴</button>
+      <button class="tab-btn" data-pane="shop">小卖部与背包</button>
+      <button class="tab-btn" data-pane="quests">任务与成就</button>
+    </div>
+
+    <div class="body">
+      <!-- Tab 1: 互动陪伴 -->
+      <div class="pane active" id="pane-interact">
+        <div class="status-row">
+          <span id="statusText" class="status-text">状态不错，正安安静静陪着你</span>
+          <button id="btnCheckin" class="primary-sm">每日签到</button>
+        </div>
+
+        <div class="bars">
+          <div class="bar-item">
+            <span>饱食度</span>
+            <div class="bar-track"><div id="barHunger" class="bar-fill fill-hunger" style="width:80%"></div></div>
+            <span id="valHunger" class="bar-val">80</span>
+          </div>
+          <div class="bar-item">
+            <span>心情值</span>
+            <div class="bar-track"><div id="barMood" class="bar-fill fill-mood" style="width:85%"></div></div>
+            <span id="valMood" class="bar-val">85</span>
+          </div>
+          <div class="bar-item">
+            <span>精力值</span>
+            <div class="bar-track"><div id="barEnergy" class="bar-fill fill-energy" style="width:85%"></div></div>
+            <span id="valEnergy" class="bar-val">85</span>
+          </div>
+          <div class="bar-item">
+            <span>成长值</span>
+            <div class="bar-track"><div id="barExp" class="bar-fill fill-exp" style="width:10%"></div></div>
+            <span id="valExp" class="bar-val">0/60</span>
+          </div>
+        </div>
+
+        <div class="actions-grid" id="actionsGrid">
+          <button class="act-btn" data-act="pet">
+            <div class="act-name">摸摸头</div>
+            <div class="act-meta">心情+12  经验+8</div>
+          </button>
+          <button class="act-btn" data-act="praise">
+            <div class="act-name">夸夸她</div>
+            <div class="act-meta">心情+14  经验+10</div>
+          </button>
+          <button class="act-btn" data-act="music">
+            <div class="act-name">戴耳机听歌</div>
+            <div class="act-meta">心情+15  精力+6</div>
+          </button>
+          <button class="act-btn" data-act="sit">
+            <div class="act-name">坐下晃小腿</div>
+            <div class="act-meta">精力+18  心情+8</div>
+          </button>
+          <button class="act-btn" data-act="guitar">
+            <div class="act-name">练吉他演出</div>
+            <div class="act-meta">精力-14  赚22币 经验+28</div>
+          </button>
+          <button class="act-btn" data-act="study">
+            <div class="act-name">认真学习</div>
+            <div class="act-meta">精力-12  赚16币 经验+30</div>
+          </button>
+          <button class="act-btn" data-act="stretch">
+            <div class="act-name">伸个懒腰</div>
+            <div class="act-meta">精力+15  心情+8</div>
+          </button>
+          <button class="act-btn" data-act="nap">
+            <div class="act-name">午睡小憩</div>
+            <div class="act-meta">精力+36  恢复元气</div>
+          </button>
+        </div>
+
+        <div class="logs-box">
+          <div class="section-title" style="margin-bottom:3px;">陪伴记录（独立本地养成）</div>
+          <div id="logsList"></div>
+        </div>
+      </div>
+
+      <!-- Tab 2: 小卖部与背包 -->
+      <div class="pane" id="pane-shop">
+        <div id="shopSectionTitle" class="section-title">轻音部小卖部（购买后可随时从背包投喂或送礼）</div>
+        <div id="shopList" class="item-list"></div>
+      </div>
+
+      <!-- Tab 3: 每日任务与成就 -->
+      <div class="pane" id="pane-quests">
+        <div class="section-title">每日任务（每天自动刷新）</div>
+        <div id="questList" class="item-list"></div>
+        <div class="section-title" style="margin-top:6px;">成长成就墙</div>
+        <div id="achGrid" class="ach-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    function showToast(msg, ms = 2100) {
+      const el = $("toast");
+      el.textContent = msg;
+      el.classList.remove("hidden");
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => el.classList.add("hidden"), ms);
+    }
+
+    document.querySelectorAll(".tab-btn").forEach((b) => {
+      b.onclick = () => {
+        document.querySelectorAll(".tab-btn").forEach((x) => x.classList.toggle("active", x === b));
+        document.querySelectorAll(".pane").forEach((p) => p.classList.toggle("active", p.id === `pane-${b.dataset.pane}`));
+      };
+    });
+
+    const DEFAULT_ACTION_NAMES = {
+      pet: "摸摸头",
+      praise: "夸夸她",
+      music: "戴耳机听歌",
+      sit: "坐下晃小腿",
+      guitar: "练吉他演出",
+      study: "认真学习",
+      stretch: "伸个懒腰",
+      nap: "午睡小憩",
+    };
+
+    function render(s) {
+      $("petName").textContent = s.pet_name || "小唯";
+      $("lvBadge").textContent = `Lv.${s.level} ${s.title}`;
+      $("coinPill").textContent = `${s.coins} 币`;
+      $("statusText").textContent = s.status_text || "";
+
+      // 按当前桌宠角色自动同步互动动作与小卖部标题（如四足小狐狸自动显示扑毛线球/盯小蝴蝶/翻肚皮等）
+      const actLabels = s.action_labels || {};
+      document.querySelectorAll("#actionsGrid .act-btn").forEach((btn) => {
+        const key = btn.dataset.act;
+        const nameEl = btn.querySelector(".act-name");
+        if (nameEl && key) nameEl.textContent = actLabels[key] || DEFAULT_ACTION_NAMES[key] || nameEl.textContent;
+      });
+      if ($("shopSectionTitle") && s.shop_title) {
+        $("shopSectionTitle").textContent = s.shop_title;
+      }
+
+      $("barHunger").style.width = `${s.hunger}%`;
+      $("valHunger").textContent = `${s.hunger}`;
+      $("barMood").style.width = `${s.mood}%`;
+      $("valMood").textContent = `${s.mood}`;
+      $("barEnergy").style.width = `${s.energy}%`;
+      $("valEnergy").textContent = `${s.energy}`;
+
+      const expPct = Math.min(100, Math.round((s.exp / Math.max(1, s.exp_needed)) * 100));
+      $("barExp").style.width = `${expPct}%`;
+      $("valExp").textContent = `${s.exp}/${s.exp_needed}`;
+
+      const ck = $("btnCheckin");
+      ck.disabled = !!s.checked_in_today;
+      ck.textContent = s.checked_in_today ? `已签(${s.checkin_streak}天)` : "每日签到";
+
+      const logs = s.logs || [];
+      $("logsList").innerHTML = logs.length
+        ? logs.slice(0, 4).map((l) => `<div class="log-line">${l.time}  ${l.text}</div>`).join("")
+        : '<div class="log-line">还没有互动记录，摸摸头或去小卖部买块蛋糕吧</div>';
+
+      // 渲染小卖部与背包
+      $("shopList").innerHTML = (s.shop || []).map((it) => `
+        <div class="item-card">
+          <div class="item-info">
+            <div class="item-title">${it.name} <span style="color:var(--muted);font-weight:400;font-size:11px;">(背包:${it.owned})</span></div>
+            <div class="item-desc">${it.desc}</div>
+          </div>
+          <div class="item-btns">
+            <button class="outline-sm" data-buy="${it.id}">${it.price}币买</button>
+            <button class="primary-sm" data-use="${it.id}" ${it.owned > 0 ? "" : "disabled"}>${it.category === "礼物" ? "赠送" : "投喂"}</button>
+          </div>
+        </div>
+      `).join("");
+
+      // 渲染每日任务
+      $("questList").innerHTML = (s.quests || []).map((q) => {
+        let btnHtml = `<span style="font-size:11px;color:var(--muted);">${q.current}/${q.target}</span>`;
+        if (q.claimed) btnHtml = `<span style="font-size:11px;color:#16a34a;font-weight:600;">已领取</span>`;
+        else if (q.completed) btnHtml = `<button class="primary-sm" data-claim="${q.id}">领取奖励</button>`;
+        return `
+          <div class="item-card">
+            <div class="item-info">
+              <div class="item-title">${q.title}</div>
+              <div class="item-desc">奖励：${q.reward_coins} 零花钱 + ${q.reward_exp} 经验</div>
+            </div>
+            <div>${btnHtml}</div>
+          </div>
+        `;
+      }).join("");
+
+      // 渲染成就墙
+      $("achGrid").innerHTML = (s.achievements || []).map((a) => `
+        <div class="ach-card ${a.unlocked ? "unlocked" : ""}">
+          <div class="ach-title">${a.title}${a.unlocked ? " · 已达成" : ""}</div>
+          <div class="ach-desc">${a.desc}</div>
+        </div>
+      `).join("");
+    }
+
+    async function refreshCare() {
+      const res = await fetch("/api/care/state");
+      if (res.ok) render(await res.json());
+    }
+    window.refreshCare = refreshCare;
+
+    $("actionsGrid").addEventListener("click", async (e) => {
+      const btn = e.target.closest("[data-act]");
+      if (!btn) return;
+      const res = await fetch(`/api/care/action/${encodeURIComponent(btn.dataset.act)}`, { method: "POST" });
+      const data = await res.json();
+      if (data.state) render(data.state);
+      showToast(data.message || "");
+    });
+
+    $("shopList").addEventListener("click", async (e) => {
+      const buyBtn = e.target.closest("[data-buy]");
+      if (buyBtn) {
+        const res = await fetch(`/api/care/buy/${encodeURIComponent(buyBtn.dataset.buy)}`, { method: "POST" });
+        const data = await res.json();
+        if (data.state) render(data.state);
+        showToast(data.message || "");
+        return;
+      }
+      const useBtn = e.target.closest("[data-use]");
+      if (useBtn && !useBtn.disabled) {
+        const res = await fetch(`/api/care/use/${encodeURIComponent(useBtn.dataset.use)}`, { method: "POST" });
+        const data = await res.json();
+        if (data.state) render(data.state);
+        showToast(data.message || "");
+      }
+    });
+
+    $("questList").addEventListener("click", async (e) => {
+      const claimBtn = e.target.closest("[data-claim]");
+      if (!claimBtn) return;
+      const res = await fetch(`/api/care/quest/claim/${encodeURIComponent(claimBtn.dataset.claim)}`, { method: "POST" });
+      const data = await res.json();
+      if (data.state) render(data.state);
+      showToast(data.message || "");
+    });
+
+    $("btnCheckin").onclick = async () => {
+      const res = await fetch("/api/care/checkin", { method: "POST" });
+      const data = await res.json();
+      if (data.state) render(data.state);
+      showToast(data.message || "");
+    };
+
+    $("petName").onclick = async () => {
+      const cur = $("petName").textContent;
+      const next = prompt("给桌宠起个昵称：", cur);
+      if (!next || !next.trim()) return;
+      const res = await fetch("/api/care/rename", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: next.trim() }),
+      });
+      if (res.ok) {
+        render(await res.json());
+        showToast("昵称已更新");
+      }
+    };
+
+    $("btnHide").onclick = () => {
+      fetch("/api/desktop/action", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "hide_care" }),
+      });
+    };
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") $("btnHide").click();
+    });
+
+    refreshCare();
+  </script>
+</body>
+</html>

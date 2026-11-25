@@ -1,0 +1,98 @@
+{
+  "id": "fox_animal",
+  "name": "桃橘小狐狸·四足原生态版（30 帧全动画）",
+  "author": "YuiDesk",
+  "description": "忠实还原手工拼豆小狐狸的四足原生态萌宠形态：暖桃橘毛色、深莓红耳尖与四只小爪、蓝宝石大眼、耳畔四叶星花与雪白尖蓬松大尾巴，配套全套 30 帧自然动物交互与养成动画",
+  "render_mode": "image",
+  "accent_color": "#E87A5D",
+  "default_persona_id": "yui_cheerful",
+  "file_anchors": {
+    "eat_x": 0.08,
+    "eat_y": 0.22,
+    "inspect_x": 0.42,
+    "inspect_y": 0.29
+  },
+  "state_labels": {
+    "speaking": "摇尾对话",
+    "reading": "嗅嗅卷轴",
+    "pet_head": "摸头飞机耳",
+    "eat_cake": "啃浆果油豆腐",
+    "practice_guitar": "扑毛线球",
+    "study_desk": "盯小蝴蝶",
+    "tea": "舔爪理毛",
+    "sit_swing": "翻肚皮打滚",
+    "music_dance": "摇尾撒欢",
+    "stretch": "拱背伸懒腰",
+    "proud_pose": "昂首翘尾"
+  },
+  "care_overrides": {
+    "shop_title": "森林小铺（购买后可随时从背包投喂或送给小狐狸）",
+    "actions": {
+      "pet": { "name": "挠耳摸头", "bubble": "耳朵压成飞机耳，被挠得咕噜咕噜响~" },
+      "praise": { "name": "夸夸小狐狸", "bubble": "昂起小脑袋，大尾巴得意地翘高高！" },
+      "music": { "name": "摇尾撒欢", "bubble": "甩甩大尾巴，在桌面上欢快地原地踩小步！" },
+      "sit": { "name": "翻肚皮打滚", "bubble": "翻过身露出白肚皮，踢踢小爪子打个滚~" },
+      "guitar": { "name": "扑毛线球", "bubble": "嗷呜，抓到毛线球啦！顺便捡回 22 枚零花钱" },
+      "study": { "name": "盯小蝴蝶", "bubble": "屏息观察小金蝴蝶，探索经验与零花钱都涨啦" },
+      "stretch": { "name": "拱背伸懒腰", "bubble": "前爪伸直拱个大大的狐狸懒腰~" },
+      "nap": { "name": "团球打盹", "bubble": "卷起大尾巴盖住鼻子团成毛球睡啦" }
+    },
+    "items": {
+      "black_tea": { "name": "暖阳舔爪理毛", "bubble": "晒着太阳舔舔小爪子，毛茸茸好舒服~" },
+      "dorayaki": { "name": "香脆油豆腐", "bubble": "香喷喷的油豆腐，小狐狸最爱吃啦！" },
+      "strawberry_cake": { "name": "森林红浆果", "bubble": "甜甜的野浆果配油豆腐，开心得尾巴直摇！" },
+      "matcha_pudding": { "name": "蜂蜜小果冻", "bubble": "甜丝丝的蜂蜜果冻，舔得干干净净~" },
+      "coffee_blend": { "name": "薄荷草小包", "bubble": "闻一口清爽的薄荷草，瞬间精神百倍！" },
+      "guitar_pick": { "name": "星花毛绒球", "bubble": "送给我的星花小玩具吗？害羞地蹭蹭你~" }
+    }
+  },
+  "states": {
+    "idle": "idle.png",
+    "idle_blink": "idle_blink.png",
+    "hover": "hover.png",
+    "drag": "drag.png",
+    "file_catch": "file_catch.png",
+    "eat_open": "eat_open.png",
+    "eat_chew": "eat_chew.png",
+    "inspect_file": "inspect_file.png",
+    "thinking": "thinking.png",
+    "searching": "searching.png",
+    "reading": "reading.png",
+    "speaking": "speaking.png",
+    "happy": "happy.png",
+    "error": "error.png",
+    "sleep": "sleep.png",
+    "tea": "tea.png",
+    "peek_left": "peek_left.png",
+    "peek_right": "peek_right.png",
+    "pet_head": "pet_head.png",
+    "eat_cake": "eat_cake.png",
+    "practice_guitar": "practice_guitar.png",
+    "study_desk": "study_desk.png",
+    "hungry": "hungry.png",
+    "stretch": "stretch.png",
+    "walk_left": "walk_left.png",
+    "walk_right": "walk_right.png",
+    "sit_swing": "sit_swing.png",
+    "music_dance": "music_dance.png",
+    "shy_blush": "shy_blush.png",
+    "proud_pose": "proud_pose.png"
+  },
+  "bubbles": {
+    "idle": [
+      "嘤呜~ 摇摇蓬松大尾巴，有什么需要小狐狸帮忙吗？",
+      "把文件拖给我，可以一口口啃掉或者用放大镜凑近帮你读哦",
+      "把我拖到屏幕边缘，我会扒着边边探出毛茸茸的小脑袋看你",
+      "轻轻摸摸我的小脑袋会有飞机耳惊喜哦"
+    ],
+    "happy": [
+      "嗷呜，全部搞定啦！"
+    ],
+    "error": [
+      "呜呜，好像连不上 Kimi 了，右键我打开设置检查一下吧"
+    ],
+    "sleep": [
+      "团成毛球用大尾巴盖着打个盹，有事随时点醒我"
+    ]
+  }
+}

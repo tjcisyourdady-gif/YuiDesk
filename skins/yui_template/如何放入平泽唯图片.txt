@@ -1,0 +1,21 @@
+=== 如何把自己的平泽唯图片/动图导入为桌宠 ===
+
+方法一（最简单，1 张图就行）：
+1. 打开 YuiDesk 软件 -> 左下角「设置与 API」->「桌宠外观」；
+2. 点击「一键导入图片 / ZIP 皮肤包」，直接选一张透明背景的平泽唯 PNG 或 GIF；
+3. 程序会自动为她加上呼吸起伏、拖拽晃动、思考灯泡、联网放大镜、读文档、打盹 Zzz 等状态动效！
+
+方法二（多状态动图定制）：
+把准备好的透明背景 PNG 或 GIF 复制到本目录（skins/yui_template/）下，按以下文件名命名（不需要全部凑齐，缺哪个会自动用 idle 兜底）：
+- idle.gif 或 idle.png        （待机）
+- hover.gif / hover.png       （鼠标悬停）
+- drag.png / drag.gif         （被鼠标拎起）
+- thinking.gif                （思考中）
+- searching.gif               （联网搜索中）
+- reading.gif                 （阅读文档中）
+- speaking.gif                （流式回复中）
+- happy.gif                   （完成任务/开心）
+- error.png                   （出错）
+- sleep.gif                   （挂机打盹）
+
+放好后在软件「设置 -> 桌宠外观」里点击「平泽唯 · 自定义素材包模板」即可生效！

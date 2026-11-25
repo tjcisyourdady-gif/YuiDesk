@@ -1,0 +1,39 @@
+# Python & 虚拟环境
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# 打包构建产物（体积大，请通过 GitHub Releases 发布）
+build/
+dist/
+*.spec
+*.lnk
+
+# 用户隐私数据、数据库、日志与密钥（绝对禁止提交到公开仓库！）
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+*.log
+.env
+.env.*
+*.pem
+*.key
+.kimi-code/
+
+# 第三方大型可执行二进制（随 Release 便携包发布，不提交到 Git 历史）
+kimi_engine/*.exe
+kimi_engine/*.dll
+kimi_engine/git_bash/
+
+# 编辑器与系统缓存
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

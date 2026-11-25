@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YuiDesk</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body class="mode-dialog theme-light">
+  <!-- 桌宠下方悬浮卡片：类 Kimi 左侧任务/对话记忆栏 + 右侧极简对话区 -->
+  <div id="app" class="floating-card">
+    <div class="dialog-shell">
+      <!-- 类 Kimi 左侧可折叠会话栏（工作显示任务列表，聊天显示对话列表） -->
+      <aside id="dialogSidebar" class="dialog-sidebar">
+        <div class="sidebar-top">
+          <div class="mode-switch sidebar-mode-switch" role="tablist" aria-label="对话模式">
+            <button id="modeWorkBtn" class="mode-btn active" data-mode="work" type="button"><span>工作</span><span class="mode-running-dot hidden" data-mode-dot="work"></span></button>
+            <button id="modeChatBtn" class="mode-btn" data-mode="chat" type="button"><span>聊天</span><span class="mode-running-dot hidden" data-mode-dot="chat"></span></button>
+          </div>
+          <button id="btnSidebarNew" class="sidebar-new-btn" type="button">+ 新建任务</button>
+          <input id="sidebarSearch" class="sidebar-search" type="text" placeholder="查找任务..." />
+        </div>
+        <div class="sidebar-section-head">
+          <span id="sidebarListTitle">任务</span>
+          <span id="sidebarListCount" class="sidebar-count">0</span>
+        </div>
+        <div id="sidebarConvList" class="sidebar-conv-list"></div>
+        <div class="sidebar-footer">
+          <span class="sidebar-footer-label">记忆</span>
+          <select id="memoryModeSelect" class="memory-select" title="当前模式的记忆策略（工作与聊天各自独立）">
+            <option value="none">无记忆</option>
+            <option value="session">仅本次</option>
+            <option value="long_term">含长期</option>
+          </select>
+        </div>
+      </aside>
+
+      <!-- 右侧主对话与输入区 -->
+      <div class="dialog-main">
+        <div class="dialog-top-bar">
+          <div class="top-bar-left">
+            <button id="btnToggleSidebar" class="sidebar-toggle-btn" type="button" title="展开/收起左侧记忆列表">侧栏</button>
+            <div id="compactModeSwitch" class="mode-switch mode-switch-sm hidden" role="tablist">
+              <button id="modeWorkBtnCompact" class="mode-btn active" data-mode="work" type="button"><span>工作</span><span class="mode-running-dot hidden" data-mode-dot="work"></span></button>
+              <button id="modeChatBtnCompact" class="mode-btn" data-mode="chat" type="button"><span>聊天</span><span class="mode-running-dot hidden" data-mode-dot="chat"></span></button>
+            </div>
+            <span id="activeConvTitle" class="active-conv-title">工作模式</span>
+            <span id="replyStatus" class="reply-status"></span>
+          </div>
+          <div class="reply-bar-actions">
+            <button id="btnNewChat" class="tiny-link">清空</button>
+            <button id="btnHideToPet" class="tiny-link">收起</button>
+          </div>
+        </div>
+        <div id="updateBanner" class="update-banner hidden">
+          <span id="updateBannerText">发现新版本</span>
+          <button id="btnOpenUpdateFromBanner" class="update-banner-btn" type="button">去更新</button>
+        </div>
+
+        <!-- 有消息时展示消息；侧栏展开且无消息时展示简洁空态 -->
+        <div id="replySection" class="reply-section hidden">
+          <div id="chatScroll" class="chat-scroll">
+            <div id="messagesContainer" class="messages-container"></div>
+          </div>
+        </div>
+        <div id="emptyStage" class="empty-stage hidden">
+          <div id="emptyStageTitle" class="empty-stage-title">工作模式</div>
+          <div id="emptyStageSub" class="empty-stage-sub">点击左侧历史任务续接记忆，或直接输入新任务</div>
+        </div>
+
+        <!-- 拖拽文件遮罩 -->
+        <div id="dropOverlay" class="drop-overlay hidden">
+          <div class="drop-card">松手添加文件或图片</div>
+        </div>
+
+        <!-- 核心极简输入区：输入框 + 项目/权限（仅工作模式显示） + 模型/强度/发送 -->
+        <div class="composer-box">
+          <div id="attachmentBar" class="attachment-bar hidden"></div>
+          <input id="fileInput" type="file" multiple class="hidden" />
+          <textarea
+            id="chatInput"
+            rows="2"
+            placeholder="工作模式：输入开发或文档任务，Enter 发送（支持拖入文件到桌宠）"
+          ></textarea>
+          <div id="workMetaRow" class="composer-meta-row">
+            <select id="projectSelect" class="clean-select project-select" title="选择工作项目目录"></select>
+            <select id="permissionSelect" class="clean-select perm-select" title="权限等级">
+              <option value="readonly">权限：只读</option>
+              <option value="standard">权限：标准</option>
+              <option value="full">权限：完全</option>
+            </select>
+          </div>
+          <div class="composer-bar">
+            <div class="bar-left">
+              <select id="topModelUnified" class="clean-select model-select" title="选择模型"></select>
+              <select id="effortSelect" class="clean-select effort-select" title="推理强度">
+                <option value="off">快速</option>
+                <option value="low">均衡</option>
+                <option value="medium">深度</option>
+                <option value="high">极深</option>
+              </select>
+            </div>
+            <div class="bar-right">
+              <button id="btnSend" class="send-btn">发送</button>
+              <button id="btnStop" class="stop-btn hidden">停止</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 独立设置窗口（仅右键桌宠「设置」时打开） -->
+  <div id="settingsModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>设置</h2>
+        <div class="row-gap">
+          <button id="btnTheme" class="text-btn">深浅主题</button>
+          <button id="btnCloseSettings" class="text-btn">关闭</button>
+        </div>
+      </div>
+      <div class="modal-tabs">
+        <button class="tab-btn active" data-tab="providers">Kimi 连接</button>
+        <button class="tab-btn" data-tab="pet">桌宠外观</button>
+        <button class="tab-btn" data-tab="timing">时间与轮询</button>
+        <button class="tab-btn" data-tab="personas">人设与记忆</button>
+        <button class="tab-btn" data-tab="system">快捷键与历史</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Tab 1: 极简 Kimi 专属连接配置 -->
+        <div class="tab-pane active" id="tab-providers">
+          <div class="sub-card">
+            <div class="field-head">
+              <div class="sub-card-title">方式一：Kimi 本机引擎中转（推荐 · 账号登录）</div>
+              <span id="kimiCliBadge" class="status-chip">检测中</span>
+            </div>
+            <p class="field-hint">
+              直接中转调用本机已安装的官方 Kimi Code CLI，或同目录 kimi_engine 文件夹内的 kimi.exe，使用你的 Kimi 账号直接登录，无需 API Key。
+            </p>
+            <div id="kimiCliStatusBox" style="font-size:12px;color:var(--text);margin-bottom:8px;"></div>
+
+            <label class="field-label">自定义 Kimi 引擎路径（留空自动查找 kimi_engine/ 与系统已安装程序）</label>
+            <input id="kimiCliPath" type="text" class="text-input" placeholder="留空自动搜索" />
+
+            <label class="field-label">默认 Kimi 模型（default 为跟随本机默认主力模型）</label>
+            <input id="kimiCliModel" type="text" class="text-input" list="peModelDatalist" placeholder="default" />
+            <datalist id="peModelDatalist"></datalist>
+
+            <div class="row-gap mt-12" style="flex-wrap:wrap;">
+              <button id="btnKimiCheck" class="btn-outline">刷新检测</button>
+              <button id="btnKimiInstallGit" class="btn-outline">安装 Git 运行环境</button>
+              <button id="btnKimiInstall" class="btn-outline">一键安装 Kimi 引擎</button>
+              <button id="btnKimiLogin" class="btn-outline">登录 Kimi 账号</button>
+              <button id="btnKimiSave" class="btn-accent">启用本机中转模式</button>
+            </div>
+            <div id="kimiCliFeedback" class="feedback-msg"></div>
+          </div>
+
+          <div class="sub-card mt-12">
+            <div class="field-head">
+              <div class="sub-card-title">方式二：Kimi 官方 API Key（备用）</div>
+              <a href="https://platform.moonshot.cn/console/api-keys" target="_blank" class="link-btn">获取官方 Key</a>
+            </div>
+            <p class="field-hint">若账号未开通 Kimi Code 会员，也可直接填入 Moonshot 开放平台 API Key 使用。</p>
+
+            <label class="field-label">接口地址</label>
+            <input id="peBaseUrl" type="text" class="text-input" placeholder="https://api.moonshot.cn/v1" />
+
+            <label class="field-label">
+              API Key <span id="peKeyStatus" class="status-chip"></span>
+            </label>
+            <input id="peApiKey" type="password" class="text-input" placeholder="输入 sk-...（本地加密保存，留空不变）" />
+
+            <label class="field-label">默认模型</label>
+            <div class="row-gap">
+              <input id="peDefaultModel" type="text" class="text-input" list="peModelDatalist" placeholder="kimi-k2-0905-preview" />
+              <button id="btnFetchModels" class="btn-outline">拉取模型</button>
+            </div>
+
+            <div class="switch-grid mt-8">
+              <label class="check-label"><input id="webSearchSwitch" type="checkbox" /> 开启 Kimi 原生联网搜索</label>
+            </div>
+
+            <div class="row-gap mt-12">
+              <button id="btnTestProvider" class="btn-outline">测试连接</button>
+              <button id="btnSaveProvider" class="btn-accent">启用 API 模式</button>
+            </div>
+            <div id="peFeedback" class="feedback-msg"></div>
+          </div>
+        </div>
+
+        <!-- Tab 2: 桌宠外观与皮肤 -->
+        <div class="tab-pane" id="tab-pet">
+          <div class="sub-card">
+            <div class="sub-card-title">动作预览</div>
+            <div class="anim-preview-grid" id="animPreviewGrid">
+              <button class="chip-btn" data-state="idle">待机</button>
+              <button class="chip-btn" data-state="hover">打招呼</button>
+              <button class="chip-btn" data-state="thinking">思考</button>
+              <button class="chip-btn" data-state="searching">搜索</button>
+              <button class="chip-btn" data-state="reading">读文档</button>
+              <button class="chip-btn" data-state="speaking">弹吉他回复</button>
+              <button class="chip-btn" data-state="happy">开心</button>
+              <button class="chip-btn" data-state="drag">拎起</button>
+              <button class="chip-btn" data-state="peek_right">扒在边缘</button>
+              <button class="chip-btn" data-state="pet_head">摸摸头</button>
+              <button class="chip-btn" data-state="eat_cake">吃蛋糕</button>
+              <button class="chip-btn" data-state="practice_guitar">练吉他</button>
+              <button class="chip-btn" data-state="study_desk">认真学习</button>
+              <button class="chip-btn" data-state="hungry">饿肚子</button>
+              <button class="chip-btn" data-state="stretch">伸懒腰</button>
+              <button class="chip-btn" data-state="walk_right">自由散步</button>
+              <button class="chip-btn" data-state="sit_swing">坐下晃腿</button>
+              <button class="chip-btn" data-state="music_dance">听歌摇摆</button>
+              <button class="chip-btn" data-state="shy_blush">害羞捂脸</button>
+              <button class="chip-btn" data-state="proud_pose">得意叉腰</button>
+              <button class="chip-btn" data-state="error">出错</button>
+              <button class="chip-btn" data-state="sleep">打盹</button>
+            </div>
+          </div>
+
+          <div class="sub-card mt-12">
+            <div class="field-head">
+              <div class="sub-card-title">形象皮肤</div>
+              <div class="row-gap">
+                <input id="skinImportInput" type="file" accept=".png,.gif,.webp,.zip" class="hidden" />
+                <button id="btnImportSkin" class="btn-accent">导入图片或皮肤包</button>
+                <button id="btnOpenSkinsDir" class="btn-outline">打开目录</button>
+              </div>
+            </div>
+            <div id="skinGrid" class="skin-grid"></div>
+          </div>
+
+          <div class="sub-card mt-12">
+            <div class="sub-card-title">显示参数</div>
+            <div class="range-row">
+              <label>桌宠缩放 <strong id="petScaleVal">100%</strong></label>
+              <input id="petScale" type="range" min="70" max="150" value="100" />
+            </div>
+            <div class="range-row">
+              <label>不透明度 <strong id="petOpacityVal">100%</strong></label>
+              <input id="petOpacity" type="range" min="40" max="100" value="100" />
+            </div>
+            <div class="range-row">
+              <label>对话框宽度 <strong id="dialogWidthVal">496px</strong></label>
+              <input id="dialogWidth" type="range" min="360" max="760" step="10" value="496" />
+            </div>
+            <div class="range-row">
+              <label>对话框高度 <strong id="dialogHeightVal">400px</strong></label>
+              <input id="dialogHeight" type="range" min="260" max="680" step="10" value="400" />
+            </div>
+            <div class="range-row">
+              <label>对话框字号 <strong id="dialogFontSizeVal">11.5px</strong></label>
+              <input id="dialogFontSize" type="range" min="10" max="15" step="0.5" value="11.5" />
+            </div>
+            <div class="switch-grid">
+              <label class="check-label"><input id="petAlwaysOnTop" type="checkbox" /> 始终置顶</label>
+              <label class="check-label"><input id="petEdgeHide" type="checkbox" /> 拖到屏幕边缘扒边探头</label>
+              <label class="check-label"><input id="petAutoWalk" type="checkbox" /> 开启桌面自由漫游（取消勾选即关闭漫游）</label>
+              <label class="check-label"><input id="petIdleBubbles" type="checkbox" /> 待机显示小气泡</label>
+              <label class="check-label"><input id="eatRecycleBin" type="checkbox" /> 吃掉文件时移入 Windows 回收站</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: 时间与轮询设置 -->
+        <div class="tab-pane" id="tab-timing">
+          <div class="sub-card">
+            <div class="sub-card-title">桌宠动作与轮询周期</div>
+            <div class="timing-grid mt-8">
+              <div>
+                <label class="field-label">待机动作轮询间隔（秒，5-120）</label>
+                <input id="petIdleIntervalSec" type="number" min="5" max="120" class="text-input" />
+              </div>
+              <div>
+                <label class="field-label">单次漫游持续时长（秒，2-15）</label>
+                <input id="petWalkDurationSec" type="number" min="2" max="15" class="text-input" />
+              </div>
+              <div>
+                <label class="field-label">自动打盹超时（分钟，0=不打盹）</label>
+                <input id="petSleepTimeoutMin" type="number" min="0" max="120" class="text-input" />
+              </div>
+              <div>
+                <label class="field-label">气泡停留时长（秒，2-15）</label>
+                <input id="petBubbleDurationSec" type="number" min="2" max="15" class="text-input" />
+              </div>
+              <div>
+                <label class="field-label">养成状态轮询间隔（秒，15-600）</label>
+                <input id="carePollIntervalSec" type="number" min="15" max="600" class="text-input" />
+              </div>
+              <div>
+                <label class="field-label">AI 响应超时时间（秒，30-600）</label>
+                <input id="aiTimeoutSec" type="number" min="30" max="600" class="text-input" />
+              </div>
+            </div>
+          </div>
+
+          <div class="sub-card mt-12">
+            <div class="sub-card-title">本地定时轮询提醒</div>
+            <p class="field-hint">完全本地离线运行，到点时桌宠会伸懒腰并弹出气泡提醒（如久坐提醒、喝水提醒）。</p>
+            <div class="switch-grid mt-8">
+              <label class="check-label"><input id="reminderEnabled" type="checkbox" /> 开启定时轮询提醒</label>
+            </div>
+            <div class="timing-grid mt-8">
+              <div>
+                <label class="field-label">轮询提醒间隔（分钟，0=关闭间隔）</label>
+                <input id="reminderIntervalMin" type="number" min="0" max="240" class="text-input" />
+              </div>
+              <div>
+                <label class="field-label">每日定点时间（如 17:30，留空不启用）</label>
+                <input id="reminderDailyTime" type="time" class="text-input" />
+              </div>
+            </div>
+            <label class="field-label">提醒播报文案</label>
+            <input id="reminderText" type="text" class="text-input" placeholder="已经专注一段时间啦，起来活动一下、喝口水吧" />
+            <div class="mt-12">
+              <button id="btnSaveTiming" class="btn-accent">保存时间与轮询设置</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: 人设与记忆 -->
+        <div class="tab-pane" id="tab-personas">
+          <div class="sub-card">
+            <div class="sub-card-title">项目与聊天独立长期记忆</div>
+            <p class="field-hint">工作模式与聊天模式拥有各自独立的长期记忆与默认记忆策略，仅在选择「记忆：含长期」时注入对应内容。</p>
+            <div class="timing-grid mt-8">
+              <div>
+                <label class="field-label">工作模式默认记忆</label>
+                <select id="workMemoryModeDefault" class="text-input">
+                  <option value="none">无记忆（每次全新单轮）</option>
+                  <option value="session">仅本次会话记忆</option>
+                  <option value="long_term">本次会话 + 项目长期记忆</option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label">聊天模式默认记忆</label>
+                <select id="chatMemoryModeDefault" class="text-input">
+                  <option value="none">无记忆（每次全新单轮）</option>
+                  <option value="session">仅本次会话记忆</option>
+                  <option value="long_term">本次会话 + 聊天长期记忆</option>
+                </select>
+              </div>
+            </div>
+            <label class="field-label">工作 / 项目长期记忆（技术栈、代码规范、输出格式偏好等）</label>
+            <textarea id="workMemory" class="text-area" rows="3" placeholder="例如：默认使用 Python 3.14 / FastAPI，回复保持简洁直接"></textarea>
+            <label class="field-label">聊天长期记忆（称呼、兴趣、日常交流风格偏好等）</label>
+            <textarea id="chatMemory" class="text-area" rows="3" placeholder="例如：叫我小明，平时喜欢轻松自然一点的聊天语气"></textarea>
+            <div class="mt-8">
+              <button id="btnSaveMemory" class="btn-accent">保存记忆设置</button>
+            </div>
+          </div>
+
+          <div class="sub-card mt-12">
+            <div class="sub-card-title">当前使用人设</div>
+            <select id="personaSelect" class="text-input"></select>
+            <div id="personaList" class="persona-list mt-8"></div>
+            <hr class="divider" />
+            <input id="newPersonaName" type="text" class="text-input" placeholder="新角色名称" />
+            <textarea id="newPersonaPrompt" class="text-area mt-8" rows="3" placeholder="输入系统提示词"></textarea>
+            <div class="mt-8">
+              <button id="btnAddPersona" class="btn-outline">添加人设</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 5: 软件更新、快捷键与历史 -->
+        <div class="tab-pane" id="tab-system">
+          <div class="sub-card">
+            <div class="field-head">
+              <div class="sub-card-title">软件自动更新 <span id="updateVerChip" class="status-chip">v1.2.0</span></div>
+              <a id="updateRepoLink" href="https://github.com/tjcisyourdady-gif/YuiDesk/releases" target="_blank" class="link-btn">官方发布页</a>
+            </div>
+            <p class="field-hint">
+              自动从官方 GitHub 仓库检测更新（国内无代理自动启用高速镜像回退），下载包必须通过强制 SHA-256 完整性校验与路径安全检查后才可安装，且不会改动你的聊天记录和登录状态。
+            </p>
+            <div id="updateStatusText" style="font-size:12px;color:var(--text);">当前版本：v1.2.0</div>
+            <div id="updateNotesBox" class="update-notes-box hidden"></div>
+            <div id="updateProgressWrap" class="update-progress-wrap hidden">
+              <div id="updateProgressBar" class="update-progress-bar"></div>
+            </div>
+            <div class="row-gap mt-12" style="flex-wrap:wrap;">
+              <button id="btnCheckUpdate" class="btn-outline" type="button">检查更新</button>
+              <button id="btnDownloadUpdate" class="btn-accent hidden" type="button">下载更新包</button>
+              <button id="btnApplyUpdate" class="btn-accent hidden" type="button">安装并重启</button>
+            </div>
+            <div id="updateFeedback" class="feedback-msg"></div>
+          </div>
+
+          <div class="sub-card mt-12">
+            <div class="sub-card-title">全局快捷键</div>
+            <div class="row-gap mt-8">
+              <div style="flex:1">
+                <label class="field-label">唤醒或收起对话框</label>
+                <input id="hotkeyToggle" type="text" class="text-input" placeholder="Alt+Space" />
+              </div>
+              <div style="flex:1">
+                <label class="field-label">区域截屏提问</label>
+                <input id="hotkeyScreenshot" type="text" class="text-input" placeholder="Alt+S" />
+              </div>
+            </div>
+            <div class="switch-grid mt-12">
+              <label class="check-label"><input id="launchAtStartup" type="checkbox" /> 开机自动启动</label>
+            </div>
+            <div class="mt-12">
+              <button id="btnSaveSystem" class="btn-accent">保存设置</button>
+            </div>
+          </div>
+
+          <div class="sub-card mt-12">
+            <div class="field-head">
+              <div class="sub-card-title">历史记录（独立区分）</div>
+              <div class="mode-switch mode-switch-sm">
+                <button id="histTabWork" class="mode-btn active" data-hist-mode="work" type="button">项目记录</button>
+                <button id="histTabChat" class="mode-btn" data-hist-mode="chat" type="button">聊天记录</button>
+              </div>
+            </div>
+            <div id="convList" class="conv-list-inline mt-8"></div>
+            <div class="row-gap mt-8">
+              <button id="btnExportMd" class="btn-outline">导出当前对话</button>
+              <button id="btnClearHistory" class="btn-danger">清空当前分类记录</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

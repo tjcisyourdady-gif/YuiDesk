@@ -1,0 +1,39 @@
+{
+  "id": "yui_template",
+  "name": "平泽唯 · 自定义素材包模板",
+  "author": "YuiDesk Skin Pack",
+  "description": "将你喜欢的平泽唯透明背景 PNG / GIF 放入本文件夹即可秒切角色（单图即可自动附加呼吸与状态挂件动画）",
+  "render_mode": "image",
+  "accent_color": "#FF7A59",
+  "default_persona_id": "yui_cheerful",
+  "states": {
+    "idle": "idle.gif",
+    "hover": "hover.gif",
+    "drag": "drag.png",
+    "thinking": "thinking.gif",
+    "searching": "searching.gif",
+    "reading": "reading.gif",
+    "speaking": "speaking.gif",
+    "happy": "happy.gif",
+    "error": "error.png",
+    "sleep": "sleep.gif"
+  },
+  "bubbles": {
+    "idle": [
+      "小忧，今天吃什么点心呢…不对，主人有什么要帮忙的吗！🍰",
+      "吉太准备就绪！有什么问题交给我吧~ 🎸",
+      "把文件直接拖到我身上，我来帮你读！📎",
+      "按 Alt+Space 可以马上呼出对话框哦~"
+    ],
+    "happy": [
+      "太好啦！我也是能派上大用场的！✨",
+      "搞定~ 接下来可以喝口红茶休息一下啦☕"
+    ],
+    "error": [
+      "呜呜…脑子转不过来了（请检查设置中的 API Key 或网络）💦"
+    ],
+    "sleep": [
+      "Zzz... 草莓蛋糕…吉太…软绵绵的…"
+    ]
+  }
+}

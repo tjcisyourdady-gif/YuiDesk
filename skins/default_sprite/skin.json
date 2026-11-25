@@ -1,0 +1,58 @@
+{
+  "id": "default_sprite",
+  "name": "轻音元气少女（精细日漫 30 帧全动画版）",
+  "author": "YuiDesk",
+  "description": "精细日漫赛璐璐 Q 版形象，含待机、眨眼、散步、坐下晃腿、听歌摇摆、害羞捂脸、得意叉腰、摸头、吃蛋糕、练吉他、学习、饿肚子、伸懒腰、扒边探头、仰头接文件、吃文件、放大镜研究、思考、开心、拎起、打盹全套 30 帧动画",
+  "render_mode": "image",
+  "accent_color": "#E56B4D",
+  "default_persona_id": "yui_cheerful",
+  "states": {
+    "idle": "idle.png",
+    "idle_blink": "idle_blink.png",
+    "hover": "hover.png",
+    "drag": "drag.png",
+    "file_catch": "file_catch.png",
+    "eat_open": "eat_open.png",
+    "eat_chew": "eat_chew.png",
+    "inspect_file": "inspect_file.png",
+    "thinking": "thinking.png",
+    "searching": "searching.png",
+    "reading": "reading.png",
+    "speaking": "speaking.png",
+    "happy": "happy.png",
+    "error": "error.png",
+    "sleep": "sleep.png",
+    "tea": "tea.png",
+    "peek_left": "peek_left.png",
+    "peek_right": "peek_right.png",
+    "pet_head": "pet_head.png",
+    "eat_cake": "eat_cake.png",
+    "practice_guitar": "practice_guitar.png",
+    "study_desk": "study_desk.png",
+    "hungry": "hungry.png",
+    "stretch": "stretch.png",
+    "walk_left": "walk_left.png",
+    "walk_right": "walk_right.png",
+    "sit_swing": "sit_swing.png",
+    "music_dance": "music_dance.png",
+    "shy_blush": "shy_blush.png",
+    "proud_pose": "proud_pose.png"
+  },
+  "bubbles": {
+    "idle": [
+      "下午茶时间到啦，有什么需要帮忙吗？",
+      "把文件拖到我身上，可以让我吃掉或者帮你读哦",
+      "把我拖到屏幕边缘，我会扒在边边偷偷看你哦",
+      "鼠标在我头顶轻轻摸一摸会有惊喜哦"
+    ],
+    "happy": [
+      "搞定啦，还需要我帮忙吗？"
+    ],
+    "error": [
+      "好像连不上 Kimi 了，右键我打开设置检查一下吧"
+    ],
+    "sleep": [
+      "稍微打个盹，有事随时点醒我"
+    ]
+  }
+}

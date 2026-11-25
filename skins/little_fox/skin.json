@@ -1,0 +1,64 @@
+{
+  "id": "little_fox",
+  "name": "桃橘小狐狸（精细日漫 30 帧全动画版）",
+  "author": "YuiDesk",
+  "description": "灵感源自手工拼豆小狐狸：暖桃橘毛色、深莓红耳尖与小爪、蓝宝石大眼、耳畔四叶星花发夹与白尖蓬松大尾巴，配套全套 30 帧交互与养成动画",
+  "render_mode": "image",
+  "accent_color": "#E87A5D",
+  "default_persona_id": "yui_cheerful",
+  "file_anchors": {
+    "eat_x": -0.10,
+    "eat_y": 0.14,
+    "inspect_x": 0.34,
+    "inspect_y": 0.05
+  },
+  "states": {
+    "idle": "idle.png",
+    "idle_blink": "idle_blink.png",
+    "hover": "hover.png",
+    "drag": "drag.png",
+    "file_catch": "file_catch.png",
+    "eat_open": "eat_open.png",
+    "eat_chew": "eat_chew.png",
+    "inspect_file": "inspect_file.png",
+    "thinking": "thinking.png",
+    "searching": "searching.png",
+    "reading": "reading.png",
+    "speaking": "speaking.png",
+    "happy": "happy.png",
+    "error": "error.png",
+    "sleep": "sleep.png",
+    "tea": "tea.png",
+    "peek_left": "peek_left.png",
+    "peek_right": "peek_right.png",
+    "pet_head": "pet_head.png",
+    "eat_cake": "eat_cake.png",
+    "practice_guitar": "practice_guitar.png",
+    "study_desk": "study_desk.png",
+    "hungry": "hungry.png",
+    "stretch": "stretch.png",
+    "walk_left": "walk_left.png",
+    "walk_right": "walk_right.png",
+    "sit_swing": "sit_swing.png",
+    "music_dance": "music_dance.png",
+    "shy_blush": "shy_blush.png",
+    "proud_pose": "proud_pose.png"
+  },
+  "bubbles": {
+    "idle": [
+      "嗷呜~ 摇摇大尾巴，有什么需要小狐狸帮忙吗？",
+      "把文件拖给我，可以一口吃掉或者用放大镜帮你读哦",
+      "把我拖到屏幕边缘，我会用小爪子扒着边边偷看你",
+      "轻轻摸摸我的小脑袋和耳朵会有惊喜哦"
+    ],
+    "happy": [
+      "嗷呜，全部搞定啦！"
+    ],
+    "error": [
+      "呜呜，好像连不上 Kimi 了，右键我打开设置检查一下吧"
+    ],
+    "sleep": [
+      "团成毛球用大尾巴盖着打个盹，有事随时点醒我"
+    ]
+  }
+}
