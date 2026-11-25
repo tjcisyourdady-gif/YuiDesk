@@ -225,7 +225,7 @@ def launch_kimi_terminal_action(action: str, custom_path: str = "") -> dict[str,
             f"{env_prefix}"
             f"Write-Host '正在启动 Kimi 官方登录（国内站 kimi.com），请在浏览器中完成授权...' -ForegroundColor Cyan; "
             f"& '{exe}' login --region mainland-cn; "
-            f"Write-Host ''; Write-Host '显示登录成功后关闭本窗口，即可在桌宠中直接对话。' -ForegroundColor Green"
+            f"Write-Host ''; Write-Host '只要上方出现 Logged in to managed:kimi-code. 即代表登录成功（退出时若出现英文提示可忽略），直接关闭本窗口即可在桌宠中对话。' -ForegroundColor Green"
         )
         subprocess.Popen(["powershell", "-NoExit", "-Command", cmd], creationflags=new_console)
         return {"ok": True, "message": "已打开 Kimi 授权登录窗口"}

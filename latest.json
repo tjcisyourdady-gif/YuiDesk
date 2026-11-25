@@ -1,18 +1,18 @@
 {
-  "version": "1.2.0",
+  "version": "1.2.1",
   "released_at": "2026-11-25",
-  "notes": "1. 任务执行实时阶段步骤卡片（工具调用、进度状态、耗时与历史步骤保留）\n2. 左侧任务栏运行中动画图标与工作/聊天标签实时运行圆点\n3. 修复停止按钮两行折行并支持强制终止 Kimi 子进程树\n4. 支持后台多任务并发运行，执行工作任务时可随时切换聊天或其他项目再切回\n5. 新增官方仓库自动检测更新、国内镜像加速回退与强制 SHA-256 安全校验\n6. 强化本地服务安全防护（禁用通配 CORS、拦截 DNS Rebinding 与跨站 CSRF）",
+  "notes": "1. 优化自动更新卡片提示展示，去除重复报错文案\n2. 优化 Kimi 账号登录终端引导提示（明确说明退出时的 libuv 英文提示无害可忽略）\n3. 规范 Release 安装包英文文件名（YuiDesk_portable.zip），确保完整包与 28 MB 增量补丁包双向校验通过",
   "min_patch_version": "1.0.0",
   "patch": {
     "filename": "YuiDesk_patch.zip",
-    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.0/YuiDesk_patch.zip",
-    "sha256": "f5c2432a99d6a49a5d07e678bcaec789e6d1483ba861799dc4f090937a376ce3",
-    "size_bytes": 29397108
+    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.1/YuiDesk_patch.zip",
+    "sha256": "1079e868256c10814e8dcf80de918d78cc3f98946205198727336c27d1ab7ae8",
+    "size_bytes": 29397162
   },
   "full": {
     "filename": "YuiDesk_portable.zip",
-    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.0/YuiDesk_portable.zip",
-    "sha256": "421bd11469c7cb6d6f2c01e89ff05b3040fd6fc73ec808b562a9e3318406e0f8",
-    "size_bytes": 333631041
+    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.1/YuiDesk_portable.zip",
+    "sha256": "f81af1cef0a3615749d59342ece93510b3dd3c0fc99a5cac5b4f169c46f327ae",
+    "size_bytes": 333632104
   }
 }
