@@ -1,18 +1,18 @@
 {
-  "version": "1.2.2",
+  "version": "1.2.3",
   "released_at": "2026-11-25",
-  "notes": "1. 更新下载提速 4 倍+：自动并发测速挑选最快国内加速节点，支持 6 线程多镜像分片并发下载与慢速自动换线\n2. 常规增量补丁包从 28 MB 精简至约 11 MB（仅更新变动程序与界面，已有皮肤零重复下载）\n3. 下载进度条实时显示当前网速（MB/s），仍严格保持全量 SHA-256 安全校验",
+  "notes": "1. 彻底修复点击「安装并重启」无反应的 Windows 子进程标志冲突 Bug（去除互斥的 DETACHED_PROCESS 标志）\n2. 更新重启前主动关闭单实例管道并增加文件覆盖重试与强制释放锁兜底，确保覆盖后自动拉起新版\n3. 修复 GitHub Release 页面中文更新说明乱码问题（全链路 UTF-8 发布）",
   "min_patch_version": "1.0.0",
   "patch": {
     "filename": "YuiDesk_patch.zip",
-    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.2/YuiDesk_patch.zip",
-    "sha256": "ce27aed9e8b60affbdb4319fe713d5a94b40fd648b4ac4d1cc494361cea2a972",
-    "size_bytes": 11537223
+    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.3/YuiDesk_patch.zip",
+    "sha256": "1ba6d2500efe3839f1578d76702804e488effbbcaea1b31c8aea45e06151fa8b",
+    "size_bytes": 11538366
   },
   "full": {
     "filename": "YuiDesk_portable.zip",
-    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.2/YuiDesk_portable.zip",
-    "sha256": "a452e5ac26e9b2c96bb765887ed8c8e9fda9f17e513e0771f9ff2135d41f7c50",
-    "size_bytes": 333637520
+    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.3/YuiDesk_portable.zip",
+    "sha256": "de9387e0f6440e2787f9db2b959d5d64a94385bd30a398ce91b7e82afdba0c72",
+    "size_bytes": 333638435
   }
 }

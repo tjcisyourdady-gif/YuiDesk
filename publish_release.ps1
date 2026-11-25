@@ -23,12 +23,15 @@ if (Get-Command gh -ErrorAction SilentlyContinue) {
 if ($ghExe) {
     Write-Host "==> 3/3 检测到 GitHub CLI，自动推送并发布 Release $tag ..." -ForegroundColor Cyan
     git push origin main
+    $notesFile = Join-Path $env:TEMP "yuidesk_release_notes_$ver.md"
+    & $py -c "import json, pathlib; m=json.loads(pathlib.Path(r'$PSScriptRoot\dist\latest.json').read_text(encoding='utf-8')); txt=f'## YuiDesk v{m[\"version\"]}\n\n### 更新内容\n{m[\"notes\"]}\n\n### 文件校验（SHA-256）\n- \`SHA256({m[\"patch\"][\"filename\"]})={m[\"patch\"][\"sha256\"]}\`\n- \`SHA256({m[\"full\"][\"filename\"]})={m[\"full\"][\"sha256\"]}\`\n'; pathlib.Path(r'$notesFile').write_text(txt, encoding='utf-8')"
     & $ghExe release create $tag `
         (Join-Path $PSScriptRoot "dist\YuiDesk_patch.zip") `
         (Join-Path $PSScriptRoot "dist\YuiDesk_portable.zip") `
         (Join-Path $PSScriptRoot "dist\latest.json") `
         --title "YuiDesk $tag" `
-        --notes "YuiDesk $tag 自动更新发布"
+        --notes-file $notesFile
+    Remove-Item -Force -ErrorAction SilentlyContinue $notesFile
     Write-Host "发布成功！朋友打开桌宠检查更新即可自动拉取 $tag。" -ForegroundColor Green
 } else {
     Write-Host "==> 3/3 未安装 gh CLI，请手动推送代码并在 GitHub Releases 上传以下 3 个文件（Tag 填 $tag）：" -ForegroundColor Yellow

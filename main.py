@@ -425,8 +425,22 @@ def main() -> int:
     def _quit_app() -> None:
         hotkeys.unregister_all()
         tray.hide()
+        try:
+            single_server.close()
+            if not os.environ.get("YUIDESK_ALLOW_MULTI"):
+                QLocalServer.removeServer(instance_key)
+        except Exception:
+            pass
+        for w in (chat, care_win, pet):
+            try:
+                w.hide()
+                w.close()
+            except Exception:
+                pass
         backend.stop()
         qt_app.quit()
+        # 兜底：若 QtWebEngine 子进程拖住退出，1.2 秒后强制释放进程锁，保证自动更新能顺利覆盖并重启
+        QTimer.singleShot(1200, lambda: os._exit(0))
 
     tray = TrayManager(
         parent=qt_app,

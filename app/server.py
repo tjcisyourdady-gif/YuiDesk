@@ -913,10 +913,13 @@ def create_app(
     @app.post("/api/update/apply")
     async def api_update_apply() -> dict[str, Any]:
         res = update_manager.apply_staged_update()
-        if res.get("restarting") and bridge is not None:
+        if res.get("restarting"):
             async def _delayed_quit() -> None:
                 await asyncio.sleep(0.35)
-                bridge.quit_requested.emit()
+                if bridge is not None:
+                    bridge.quit_requested.emit()
+                await asyncio.sleep(2.2)
+                os._exit(0)
 
             asyncio.create_task(_delayed_quit())
         return res

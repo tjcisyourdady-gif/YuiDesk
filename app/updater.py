@@ -649,41 +649,67 @@ class UpdateManager:
         stage_dir = Path(stage_str).resolve()
         updates_root = get_data_dir() / "updates"
         script_path = updates_root / "apply_update.ps1"
+        log_path = updates_root / "apply_update.log"
         pid = os.getpid()
 
-        # 使用单引号安全转义路径，避免 PowerShell 命令注入
+        # 使用单引号安全转义路径，避免 PowerShell 命令注入与中文路径解析问题
         def _ps_quote(s: str) -> str:
             return "'" + s.replace("'", "''") + "'"
 
         script_content = (
-            "$ErrorActionPreference = 'SilentlyContinue'\n"
+            "$ErrorActionPreference = 'Continue'\n"
             f"$targetPid = {pid}\n"
             f"$stageDir = {_ps_quote(str(stage_dir))}\n"
             f"$appDir = {_ps_quote(str(app_dir))}\n"
             f"$exePath = {_ps_quote(str(exe_path))}\n"
-            "for ($i = 0; $i -lt 40; $i++) {\n"
+            f"$logPath = {_ps_quote(str(log_path))}\n"
+            "function Write-Log($m) { Add-Content -Path $logPath -Value ((Get-Date -Format 'HH:mm:ss ') + $m) -Encoding UTF8 -ErrorAction SilentlyContinue }\n"
+            "Set-Content -Path $logPath -Value '=== YuiDesk Auto-Update Start ===' -Encoding UTF8 -ErrorAction SilentlyContinue\n"
+            "Write-Log ('Waiting for PID ' + $targetPid + ' to exit...')\n"
+            "for ($i = 0; $i -lt 20; $i++) {\n"
             "    if (-not (Get-Process -Id $targetPid -ErrorAction SilentlyContinue)) { break }\n"
-            "    Start-Sleep -Milliseconds 500\n"
+            "    Start-Sleep -Milliseconds 400\n"
             "}\n"
-            "Start-Sleep -Milliseconds 400\n"
+            "if (Get-Process -Id $targetPid -ErrorAction SilentlyContinue) {\n"
+            "    Write-Log 'Process still alive, forcing exit...'\n"
+            "    Stop-Process -Id $targetPid -Force -ErrorAction SilentlyContinue\n"
+            "    Start-Sleep -Milliseconds 600\n"
+            "}\n"
+            "Start-Sleep -Milliseconds 500\n"
+            "$copied = $false\n"
             "if (Test-Path $stageDir) {\n"
-            "    Copy-Item -Path (Join-Path $stageDir '*') -Destination $appDir -Recurse -Force\n"
-            "    Remove-Item -Path $stageDir -Recurse -Force -ErrorAction SilentlyContinue\n"
+            "    for ($try = 1; $try -le 8; $try++) {\n"
+            "        try {\n"
+            "            Copy-Item -Path (Join-Path $stageDir '*') -Destination $appDir -Recurse -Force -ErrorAction Stop\n"
+            "            $copied = $true\n"
+            "            Write-Log ('Copy succeeded on attempt ' + $try)\n"
+            "            break\n"
+            "        } catch {\n"
+            "            Write-Log ('Copy attempt ' + $try + ' failed: ' + $_.Exception.Message)\n"
+            "            Start-Sleep -Milliseconds 600\n"
+            "        }\n"
+            "    }\n"
+            "    if ($copied) {\n"
+            "        Remove-Item -Path $stageDir -Recurse -Force -ErrorAction SilentlyContinue\n"
+            "    }\n"
+            "} else {\n"
+            "    Write-Log ('Stage dir missing: ' + $stageDir)\n"
             "}\n"
             "if (Test-Path $exePath) {\n"
+            "    Write-Log ('Relaunching ' + $exePath)\n"
             "    Start-Process -FilePath $exePath -WorkingDirectory $appDir\n"
             "}\n"
         )
         script_path.write_text(script_content, encoding="utf-8-sig")
 
-        flags = (
-            getattr(subprocess, "CREATE_NO_WINDOW", 0)
-            | getattr(subprocess, "DETACHED_PROCESS", 0)
-            | getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
-        )
+        # 关键修复：Windows 下 CREATE_NO_WINDOW 与 DETACHED_PROCESS 互斥，同时传入会导致 powershell 直接静默空退！
+        ps_exe = r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
+        if not Path(ps_exe).is_file():
+            ps_exe = "powershell"
+        flags = getattr(subprocess, "CREATE_NO_WINDOW", 0) | getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
         subprocess.Popen(
             [
-                "powershell",
+                ps_exe,
                 "-NoProfile",
                 "-ExecutionPolicy",
                 "Bypass",
@@ -692,6 +718,9 @@ class UpdateManager:
                 "-File",
                 str(script_path),
             ],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
             creationflags=flags,
             close_fds=True,
         )
