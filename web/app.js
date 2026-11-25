@@ -1,6 +1,6 @@
 (() => {
   const state = {
-    appVersion: "1.2.1",
+    appVersion: "1.2.2",
     repoUrl: "https://github.com/tjcisyourdady-gif/YuiDesk",
     settings: {},
     providers: [],
@@ -1503,7 +1503,11 @@
       } else if (info.status === "downloading") {
         const dlMB = ((info.downloaded_bytes || 0) / 1048576).toFixed(1);
         const totMB = info.total_bytes ? (info.total_bytes / 1048576).toFixed(1) : "?";
-        statusEl.textContent = `${info.message || "正在下载..."} ${dlMB}/${totMB} MB (${info.progress_pct || 0}%)`;
+        const spd = Number(info.speed_bps || 0);
+        const spdText = spd >= 1048576
+          ? ` · ${(spd / 1048576).toFixed(2)} MB/s`
+          : (spd >= 1024 ? ` · ${Math.round(spd / 1024)} KB/s` : "");
+        statusEl.textContent = `${info.message || "正在下载..."} ${dlMB}/${totMB} MB (${info.progress_pct || 0}%)${spdText}`;
       } else if (info.status === "ready") {
         statusEl.textContent = `v${info.latest_version} 更新包已就绪${srcText}`;
       } else {

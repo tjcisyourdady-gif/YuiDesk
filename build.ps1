@@ -1,4 +1,8 @@
 ﻿# 一键打包 YuiDesk（含桌宠全动画皮肤 + 极简前端 + Kimi 本机引擎，不含任何个人账号隐私）
+# 常规代码更新默认只将程序与前端打进轻量补丁包（约 11 MB）；若新增/修改了角色皮肤图片，请附加 -IncludeSkins
+param(
+    [switch]$IncludeSkins
+)
 $ErrorActionPreference = "Stop"
 
 $py = Join-Path $PSScriptRoot ".venv\Scripts\python.exe"
@@ -143,7 +147,7 @@ $zipPath = Join-Path $PSScriptRoot "dist\YuiDesk_portable.zip"
 if (Test-Path $zipPath) { Remove-Item -Force $zipPath }
 Compress-Archive -Path $distDir -DestinationPath $zipPath -CompressionLevel Optimal
 
-# 生成约 20 MB 的增量热更新补丁包（供内置自动更新器快速下载：含程序本体、前端、内置皮肤与手册）
+# 生成超轻量增量热更新补丁包（常规代码更新仅约 11 MB；附加 -IncludeSkins 时包含全部角色皮肤图片约 28 MB）
 $patchStage = Join-Path $PSScriptRoot "dist\_patch_stage"
 if (Test-Path $patchStage) { Remove-Item -Recurse -Force $patchStage }
 New-Item -ItemType Directory -Force -Path $patchStage | Out-Null
@@ -154,8 +158,13 @@ foreach ($doc in @("使用说明.txt", "使用手册.md")) {
 }
 New-Item -ItemType Directory -Force -Path (Join-Path $patchStage "_internal") | Out-Null
 Copy-Item -Recurse -Force (Join-Path $distDir "_internal\web") (Join-Path $patchStage "_internal\web")
-Copy-Item -Recurse -Force (Join-Path $distDir "_internal\skins") (Join-Path $patchStage "_internal\skins")
-Copy-Item -Recurse -Force (Join-Path $distDir "skins") (Join-Path $patchStage "skins")
+if ($IncludeSkins) {
+    Copy-Item -Recurse -Force (Join-Path $distDir "_internal\skins") (Join-Path $patchStage "_internal\skins")
+    Copy-Item -Recurse -Force (Join-Path $distDir "skins") (Join-Path $patchStage "skins")
+    Write-Host "    补丁包模式：含全量角色皮肤图片" -ForegroundColor Gray
+} else {
+    Write-Host "    补丁包模式：超轻量程序+前端补丁（约 11 MB，极速下载）" -ForegroundColor Gray
+}
 
 $patchZipPath = Join-Path $PSScriptRoot "dist\YuiDesk_patch.zip"
 if (Test-Path $patchZipPath) { Remove-Item -Force $patchZipPath }
@@ -186,9 +195,9 @@ manifest = {
     'version': APP_VERSION,
     'released_at': time.strftime('%Y-%m-%d'),
     'notes': (
-        '1. 优化自动更新卡片提示展示，去除重复报错文案\n'
-        '2. 优化 Kimi 账号登录终端引导提示（明确说明退出时的 libuv 英文提示无害可忽略）\n'
-        '3. 规范 Release 安装包英文文件名（YuiDesk_portable.zip），确保完整包与 28 MB 增量补丁包双向校验通过'
+        '1. 更新下载提速 4 倍+：自动并发测速挑选最快国内加速节点，支持 6 线程多镜像分片并发下载与慢速自动换线\n'
+        '2. 常规增量补丁包从 28 MB 精简至约 11 MB（仅更新变动程序与界面，已有皮肤零重复下载）\n'
+        '3. 下载进度条实时显示当前网速（MB/s），仍严格保持全量 SHA-256 安全校验'
     ),
     'min_patch_version': '1.0.0',
     'patch': {

@@ -11,6 +11,7 @@ import subprocess
 import threading
 import time
 import zipfile
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -38,11 +39,12 @@ ALLOWED_TOP_LEVEL_ENTRIES = {
     "使用手册.md",
 }
 
-# 国内加速下载代理（仅在 GitHub 直连超时/失败时作为下载通道回退；所有下载包都必须通过官方 SHA-256 严格校验！）
+# 国内高速加速代理（并发测速自动挑最快节点并支持多节点并发分片下载；所有下载包都必须通过官方 SHA-256 严格校验！）
 CHINA_DOWNLOAD_PROXIES = (
     "https://ghfast.top/",
     "https://gh-proxy.com/",
-    "https://mirror.ghproxy.com/",
+    "https://gh-proxy.org/",
+    "https://ghproxy.net/",
 )
 
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -171,6 +173,7 @@ class UpdateManager:
             "downloaded_bytes": 0,
             "total_bytes": 0,
             "progress_pct": 0,
+            "speed_bps": 0,
             "staged_dir": "",
             "message": "",
             "checked_at": 0.0,
@@ -192,18 +195,22 @@ class UpdateManager:
             "User-Agent": f"{APP_NAME}/{APP_VERSION}",
             "Accept": "application/json",
         }
-        # 1. 优先尝试官方 GitHub Releases API（最权威），失败则回退 raw / 国内 jsDelivr CDN
+        # 1. 短超时尝试官方 GitHub API，失败则秒切国内 jsDelivr CDN，确保国内无代理也能 1 秒出结果
         candidates = [
-            ("github_api", f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}/releases/latest"),
-            ("github_raw", f"https://raw.githubusercontent.com/{GITHUB_OWNER}/{GITHUB_REPO}/{GITHUB_BRANCH}/latest.json"),
-            ("jsdelivr_cdn", f"https://cdn.jsdelivr.net/gh/{GITHUB_OWNER}/{GITHUB_REPO}@{GITHUB_BRANCH}/latest.json"),
-            ("fastly_cdn", f"https://fastly.jsdelivr.net/gh/{GITHUB_OWNER}/{GITHUB_REPO}@{GITHUB_BRANCH}/latest.json"),
+            ("github_api", f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}/releases/latest", 4.5),
+            ("jsdelivr_cdn", f"https://cdn.jsdelivr.net/gh/{GITHUB_OWNER}/{GITHUB_REPO}@{GITHUB_BRANCH}/latest.json", 6.0),
+            ("fastly_cdn", f"https://fastly.jsdelivr.net/gh/{GITHUB_OWNER}/{GITHUB_REPO}@{GITHUB_BRANCH}/latest.json", 6.0),
+            ("github_raw", f"https://raw.githubusercontent.com/{GITHUB_OWNER}/{GITHUB_REPO}/{GITHUB_BRANCH}/latest.json", 6.0),
         ]
         errors: list[str] = []
 
-        with httpx.Client(timeout=httpx.Timeout(8.0, connect=5.0), follow_redirects=True, headers=headers) as client:
-            for source_name, url in candidates:
-                try:
+        for source_name, url, tout in candidates:
+            try:
+                with httpx.Client(
+                    timeout=httpx.Timeout(tout, connect=min(3.5, tout)),
+                    follow_redirects=True,
+                    headers=headers,
+                ) as client:
                     resp = client.get(url)
                     if resp.status_code != 200:
                         errors.append(f"{source_name}: HTTP {resp.status_code}")
@@ -222,8 +229,8 @@ class UpdateManager:
                             "fastly_cdn": "Fastly 国内镜像",
                         }.get(source_name, source_name)
                         return data, label
-                except Exception as exc:
-                    errors.append(f"{source_name}: {exc}")
+            except Exception as exc:
+                errors.append(f"{source_name}: {exc}")
 
         raise RuntimeError("无法连接到更新服务器（已尝试 GitHub 与国内镜像）：" + "; ".join(errors[:3]))
 
@@ -346,10 +353,135 @@ class UpdateManager:
             downloaded_bytes=0,
             total_bytes=int(st.get("package_size") or 0),
             progress_pct=0,
+            speed_bps=0,
             staged_dir="",
             download_source="",
-            message="正在连接下载节点...",
+            message="正在并发测速挑选最快的国内加速节点...",
         )
+
+        def _probe_node(item: tuple[str, str], headers: dict[str, str]) -> dict[str, Any]:
+            label, url = item
+            t0 = time.perf_counter()
+            try:
+                with httpx.Client(
+                    timeout=httpx.Timeout(4.5, connect=3.0),
+                    follow_redirects=True,
+                    headers=headers,
+                ) as c:
+                    with c.stream("GET", url, headers={"Range": "bytes=0-131071"}) as r:
+                        if r.status_code not in (200, 206):
+                            return {"label": label, "url": url, "ok": False, "speed": 0.0, "range_ok": False, "total": 0}
+                        got = 0
+                        for chunk in r.iter_bytes(32768):
+                            got += len(chunk)
+                            if got >= 131072:
+                                break
+                        dt = max(time.perf_counter() - t0, 0.01)
+                        total = 0
+                        cr = r.headers.get("content-range") or ""
+                        if "/" in cr:
+                            try:
+                                total = int(cr.rsplit("/", 1)[-1])
+                            except Exception:
+                                total = 0
+                        if not total:
+                            try:
+                                total = int(r.headers.get("content-length") or 0)
+                            except Exception:
+                                total = 0
+                        return {
+                            "label": label,
+                            "url": url,
+                            "ok": got > 0,
+                            "speed": got / dt,
+                            "range_ok": r.status_code == 206,
+                            "total": total,
+                        }
+            except Exception:
+                return {"label": label, "url": url, "ok": False, "speed": 0.0, "range_ok": False, "total": 0}
+
+        def _parallel_range_download(
+            nodes: list[dict[str, Any]],
+            total_size: int,
+            dest_path: Path,
+            headers: dict[str, str],
+        ) -> tuple[bool, str]:
+            """多节点 6 线程分片并发加速下载，自动故障重试."""
+            chunk_size = 1024 * 1024  # 1 MB / 片
+            ranges: list[tuple[int, int, int]] = []
+            pos = 0
+            idx = 0
+            while pos < total_size:
+                end = min(total_size - 1, pos + chunk_size - 1)
+                ranges.append((idx, pos, end))
+                pos = end + 1
+                idx += 1
+
+            # 预分配临时文件，写完每片直接落盘不占多余内存
+            with dest_path.open("wb") as fp:
+                fp.truncate(total_size)
+
+            write_lock = threading.Lock()
+            prog_lock = threading.Lock()
+            done_bytes = 0
+            t_start = time.perf_counter()
+            top_nodes = nodes[:3]
+            node_names = " + ".join(n["label"].replace("国内加速镜像 ", "") for n in top_nodes)
+            self._update_state(
+                download_source=f"多节点并发加速 ({node_names})",
+                total_bytes=total_size,
+                message="正在多节点并发加速下载更新包...",
+            )
+
+            def _download_one_chunk(item: tuple[int, int, int]) -> None:
+                nonlocal done_bytes
+                c_idx, s_byte, e_byte = item
+                need = e_byte - s_byte + 1
+                last_e: Exception | None = None
+                # 主节点失败则轮换其他可用节点重试
+                for attempt in range(len(nodes)):
+                    node = nodes[(c_idx + attempt) % len(nodes)]
+                    try:
+                        buf = bytearray()
+                        with httpx.Client(
+                            timeout=httpx.Timeout(18.0, connect=5.0),
+                            follow_redirects=True,
+                            headers=headers,
+                        ) as c:
+                            with c.stream("GET", node["url"], headers={"Range": f"bytes={s_byte}-{e_byte}"}) as r:
+                                if r.status_code != 206:
+                                    raise RuntimeError(f"HTTP {r.status_code}")
+                                for part in r.iter_bytes(65536):
+                                    if not part:
+                                        continue
+                                    buf.extend(part)
+                                    with prog_lock:
+                                        done_bytes += len(part)
+                                        dt = max(time.perf_counter() - t_start, 0.1)
+                                        spd = int(done_bytes / dt)
+                                        pct = int(min(99, round(done_bytes * 100 / total_size)))
+                                        self._update_state(
+                                            downloaded_bytes=min(done_bytes, total_size),
+                                            total_bytes=total_size,
+                                            progress_pct=pct,
+                                            speed_bps=spd,
+                                        )
+                        if len(buf) != need:
+                            raise RuntimeError(f"chunk length mismatch: {len(buf)} != {need}")
+                        with write_lock:
+                            with dest_path.open("r+b") as fp:
+                                fp.seek(s_byte)
+                                fp.write(buf)
+                        return
+                    except Exception as exc:
+                        last_e = exc
+                raise RuntimeError(f"分片 #{c_idx} 下载失败：{last_e}")
+
+            with ThreadPoolExecutor(max_workers=min(6, len(ranges))) as pool:
+                futs = [pool.submit(_download_one_chunk, r) for r in ranges]
+                for fut in as_completed(futs):
+                    fut.result()
+            return True, f"多节点并发加速 ({node_names})"
 
         def _worker() -> None:
             updates_root = get_data_dir() / "updates"
@@ -358,84 +490,132 @@ class UpdateManager:
             zip_dest = updates_root / f"update_{ver_tag}.zip"
             stage_dir = updates_root / f"staging_{ver_tag}"
 
-            # 依次尝试官方 GitHub 直连与国内代理通道（所有通道都必须通过同一个官方 SHA-256 校验！）
-            urls_to_try: list[tuple[str, str]] = [("GitHub 官方直连", pkg_url)]
+            # 国内代理节点与 GitHub 官方直连一起并发测速，按真实实测速度自动排序！
+            raw_candidates: list[tuple[str, str]] = []
             for prefix in CHINA_DOWNLOAD_PROXIES:
                 host = urlparse(prefix).netloc
-                urls_to_try.append((f"国内加速镜像 ({host})", prefix + pkg_url))
+                raw_candidates.append((f"国内加速镜像 ({host})", prefix + pkg_url))
+            raw_candidates.append(("GitHub 官方直连", pkg_url))
+
+            headers = {"User-Agent": f"{APP_NAME}/{APP_VERSION}"}
+            probed: list[dict[str, Any]] = []
+            with ThreadPoolExecutor(max_workers=len(raw_candidates)) as pool:
+                for res in pool.map(lambda item: _probe_node(item, headers), raw_candidates):
+                    probed.append(res)
+
+            healthy = sorted([p for p in probed if p["ok"]], key=lambda x: x["speed"], reverse=True)
+            range_nodes = [p for p in healthy if p["range_ok"]]
+            fallback_order = (
+                [(p["label"], p["url"]) for p in healthy]
+                + [(p["label"], p["url"]) for p in probed if not p["ok"]]
+            )
+
+            total_expected = int(st.get("package_size") or 0)
+            if not total_expected and range_nodes:
+                total_expected = int(range_nodes[0].get("total") or 0)
 
             last_err = ""
             verified_ok = False
             used_source = ""
-            headers = {"User-Agent": f"{APP_NAME}/{APP_VERSION}"}
+            tmp_path = zip_dest.with_suffix(".part")
 
-            for source_label, dl_url in urls_to_try:
-                self._update_state(
-                    download_source=source_label,
-                    downloaded_bytes=0,
-                    progress_pct=0,
-                    message=f"正在通过 {source_label} 下载更新包...",
-                )
-                tmp_path = zip_dest.with_suffix(".part")
+            # 优先路径：多节点 6 线程并发分片加速下载 + 整包强制 SHA-256 校验
+            if range_nodes and total_expected >= 1024 * 1024:
                 try:
-                    if tmp_path.exists():
+                    tmp_path.unlink(missing_ok=True)
+                    _, multi_label = _parallel_range_download(range_nodes, total_expected, tmp_path, headers)
+                    self._update_state(progress_pct=99, message="下载完成，正在执行 SHA-256 完整性校验...")
+                    actual_sha = compute_file_sha256(tmp_path)
+                    if actual_sha == expected_sha:
+                        if zip_dest.exists():
+                            zip_dest.unlink(missing_ok=True)
+                        tmp_path.replace(zip_dest)
+                        verified_ok = True
+                        used_source = multi_label
+                    else:
                         tmp_path.unlink(missing_ok=True)
-                    with httpx.Client(
-                        timeout=httpx.Timeout(30.0, connect=8.0),
-                        follow_redirects=True,
-                        headers=headers,
-                    ) as client:
-                        with client.stream("GET", dl_url) as resp:
-                            if resp.status_code != 200:
-                                last_err = f"{source_label} 返回 HTTP {resp.status_code}"
-                                continue
-                            total = int(resp.headers.get("content-length") or st.get("package_size") or 0)
-                            done = 0
-                            hasher = hashlib.sha256()
-                            with tmp_path.open("wb") as fp:
-                                for chunk in resp.iter_bytes(chunk_size=131072):
-                                    if not chunk:
-                                        continue
-                                    fp.write(chunk)
-                                    hasher.update(chunk)
-                                    done += len(chunk)
-                                    pct = int(min(99, round(done * 100 / total))) if total > 0 else 0
-                                    self._update_state(
-                                        downloaded_bytes=done,
-                                        total_bytes=total,
-                                        progress_pct=pct,
-                                    )
-
-                    actual_sha = hasher.hexdigest().lower()
-                    if actual_sha != expected_sha:
-                        tmp_path.unlink(missing_ok=True)
-                        last_err = f"{source_label} 校验失败（SHA-256 不匹配，已自动丢弃该节点文件）"
-                        continue
-
-                    if zip_dest.exists():
-                        zip_dest.unlink(missing_ok=True)
-                    tmp_path.replace(zip_dest)
-                    verified_ok = True
-                    used_source = source_label
-                    break
+                        last_err = "多节点并发包 SHA-256 校验未通过，自动回退单节点重新验证"
                 except Exception as exc:
                     tmp_path.unlink(missing_ok=True)
-                    last_err = f"{source_label}: {exc}"
+                    last_err = f"并发下载异常，自动切换单节点：{exc}"
+
+            # 兜底路径：按测速从快到慢依次单流下载（若 6 秒后均速低于 100 KB/s 且仍有备用节点则自动换线）
+            if not verified_ok:
+                for idx_n, (source_label, dl_url) in enumerate(fallback_order):
+                    has_more = idx_n < len(fallback_order) - 1
+                    self._update_state(
+                        download_source=source_label,
+                        downloaded_bytes=0,
+                        progress_pct=0,
+                        speed_bps=0,
+                        message=f"正在通过 {source_label} 下载更新包...",
+                    )
+                    try:
+                        tmp_path.unlink(missing_ok=True)
+                        t0 = time.perf_counter()
+                        with httpx.Client(
+                            timeout=httpx.Timeout(25.0, connect=6.0),
+                            follow_redirects=True,
+                            headers=headers,
+                        ) as client:
+                            with client.stream("GET", dl_url) as resp:
+                                if resp.status_code != 200:
+                                    last_err = f"{source_label} 返回 HTTP {resp.status_code}"
+                                    continue
+                                total = int(resp.headers.get("content-length") or total_expected or 0)
+                                done = 0
+                                hasher = hashlib.sha256()
+                                with tmp_path.open("wb") as fp:
+                                    for chunk in resp.iter_bytes(chunk_size=131072):
+                                        if not chunk:
+                                            continue
+                                        fp.write(chunk)
+                                        hasher.update(chunk)
+                                        done += len(chunk)
+                                        dt = max(time.perf_counter() - t0, 0.1)
+                                        spd = int(done / dt)
+                                        pct = int(min(99, round(done * 100 / total))) if total > 0 else 0
+                                        self._update_state(
+                                            downloaded_bytes=done,
+                                            total_bytes=total,
+                                            progress_pct=pct,
+                                            speed_bps=spd,
+                                        )
+                                        if has_more and dt >= 6.0 and spd < 100 * 1024 and pct < 60:
+                                            raise RuntimeError(f"当前节点偏慢 ({spd // 1024} KB/s)，自动切换备用节点")
+
+                        actual_sha = hasher.hexdigest().lower()
+                        if actual_sha != expected_sha:
+                            tmp_path.unlink(missing_ok=True)
+                            last_err = f"{source_label} 校验失败（SHA-256 不匹配，已自动丢弃该节点文件）"
+                            continue
+
+                        if zip_dest.exists():
+                            zip_dest.unlink(missing_ok=True)
+                        tmp_path.replace(zip_dest)
+                        verified_ok = True
+                        used_source = source_label
+                        break
+                    except Exception as exc:
+                        tmp_path.unlink(missing_ok=True)
+                        last_err = f"{source_label}: {exc}"
 
             if not verified_ok:
                 self._update_state(
                     status="error",
+                    speed_bps=0,
                     message=f"下载或安全校验失败：{last_err}",
                 )
                 return
 
             try:
-                self._update_state(progress_pct=99, message="SHA-256 完整性校验通过，正在安全解压更新包...")
+                self._update_state(progress_pct=99, speed_bps=0, message="SHA-256 完整性校验通过，正在安全解压更新包...")
                 extracted = _safe_extract_zip(zip_dest, stage_dir)
                 zip_dest.unlink(missing_ok=True)
                 self._update_state(
                     status="ready",
                     progress_pct=100,
+                    speed_bps=0,
                     staged_dir=str(stage_dir),
                     download_source=used_source,
                     message=f"v{st['latest_version']} 已下载并校验通过（{len(extracted)} 个文件），点击「安装并重启」即可完成更新",
@@ -443,7 +623,7 @@ class UpdateManager:
             except Exception as exc:
                 shutil.rmtree(stage_dir, ignore_errors=True)
                 zip_dest.unlink(missing_ok=True)
-                self._update_state(status="error", message=f"更新包解压校验失败：{exc}")
+                self._update_state(status="error", speed_bps=0, message=f"更新包解压校验失败：{exc}")
 
         self._download_thread = threading.Thread(target=_worker, daemon=True)
         self._download_thread.start()

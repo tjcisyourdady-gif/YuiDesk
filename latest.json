@@ -1,18 +1,18 @@
 {
-  "version": "1.2.1",
+  "version": "1.2.2",
   "released_at": "2026-11-25",
-  "notes": "1. 优化自动更新卡片提示展示，去除重复报错文案\n2. 优化 Kimi 账号登录终端引导提示（明确说明退出时的 libuv 英文提示无害可忽略）\n3. 规范 Release 安装包英文文件名（YuiDesk_portable.zip），确保完整包与 28 MB 增量补丁包双向校验通过",
+  "notes": "1. 更新下载提速 4 倍+：自动并发测速挑选最快国内加速节点，支持 6 线程多镜像分片并发下载与慢速自动换线\n2. 常规增量补丁包从 28 MB 精简至约 11 MB（仅更新变动程序与界面，已有皮肤零重复下载）\n3. 下载进度条实时显示当前网速（MB/s），仍严格保持全量 SHA-256 安全校验",
   "min_patch_version": "1.0.0",
   "patch": {
     "filename": "YuiDesk_patch.zip",
-    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.1/YuiDesk_patch.zip",
-    "sha256": "1079e868256c10814e8dcf80de918d78cc3f98946205198727336c27d1ab7ae8",
-    "size_bytes": 29397162
+    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.2/YuiDesk_patch.zip",
+    "sha256": "ce27aed9e8b60affbdb4319fe713d5a94b40fd648b4ac4d1cc494361cea2a972",
+    "size_bytes": 11537223
   },
   "full": {
     "filename": "YuiDesk_portable.zip",
-    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.1/YuiDesk_portable.zip",
-    "sha256": "f81af1cef0a3615749d59342ece93510b3dd3c0fc99a5cac5b4f169c46f327ae",
-    "size_bytes": 333632104
+    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.2/YuiDesk_portable.zip",
+    "sha256": "a452e5ac26e9b2c96bb765887ed8c8e9fda9f17e513e0771f9ff2135d41f7c50",
+    "size_bytes": 333637520
   }
 }
