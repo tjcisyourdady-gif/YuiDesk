@@ -18,7 +18,7 @@ if (Get-Command gh -ErrorAction SilentlyContinue) {
     git push origin main
     gh release create $tag `
         (Join-Path $PSScriptRoot "dist\YuiDesk_patch.zip") `
-        (Join-Path $PSScriptRoot "dist\YuiDesk_便携版.zip") `
+        (Join-Path $PSScriptRoot "dist\YuiDesk_portable.zip") `
         (Join-Path $PSScriptRoot "dist\latest.json") `
         --title "YuiDesk $tag" `
         --notes-file (Join-Path $PSScriptRoot "dist\latest.json")
@@ -26,6 +26,6 @@ if (Get-Command gh -ErrorAction SilentlyContinue) {
 } else {
     Write-Host "==> 3/3 未安装 gh CLI，请手动推送代码并在 GitHub Releases 上传以下 3 个文件（Tag 填 $tag）：" -ForegroundColor Yellow
     Write-Host "    1. dist\YuiDesk_patch.zip" -ForegroundColor White
-    Write-Host "    2. dist\YuiDesk_便携版.zip" -ForegroundColor White
+    Write-Host "    2. dist\YuiDesk_portable.zip" -ForegroundColor White
     Write-Host "    3. dist\latest.json" -ForegroundColor White
 }

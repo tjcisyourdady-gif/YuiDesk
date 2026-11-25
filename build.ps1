@@ -139,7 +139,7 @@ if (Test-Path $manualSrc) {
 }
 
 Write-Host "==> 4/4 生成完整便携包、轻量增量更新包与 SHA-256 清单 (latest.json)..." -ForegroundColor Cyan
-$zipPath = Join-Path $PSScriptRoot "dist\YuiDesk_便携版.zip"
+$zipPath = Join-Path $PSScriptRoot "dist\YuiDesk_portable.zip"
 if (Test-Path $zipPath) { Remove-Item -Force $zipPath }
 Compress-Archive -Path $distDir -DestinationPath $zipPath -CompressionLevel Optimal
 
@@ -171,7 +171,7 @@ from app.version import APP_VERSION, GITHUB_OWNER, GITHUB_REPO
 root = Path(r'$PSScriptRoot')
 dist = root / 'dist'
 patch_p = dist / 'YuiDesk_patch.zip'
-full_p = dist / 'YuiDesk_便携版.zip'
+full_p = dist / 'YuiDesk_portable.zip'
 
 def sha256_file(p: Path) -> str:
     h = hashlib.sha256()
@@ -201,8 +201,8 @@ manifest = {
         'size_bytes': patch_p.stat().st_size,
     },
     'full': {
-        'filename': 'YuiDesk_便携版.zip',
-        'url': f'{base_dl}/YuiDesk_便携版.zip',
+        'filename': 'YuiDesk_portable.zip',
+        'url': f'{base_dl}/YuiDesk_portable.zip',
         'sha256': sha256_file(full_p),
         'size_bytes': full_p.stat().st_size,
     },
