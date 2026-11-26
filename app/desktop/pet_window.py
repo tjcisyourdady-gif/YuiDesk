@@ -73,6 +73,7 @@ class PetWindow(QWidget):
     new_chat_triggered = Signal()
     web_search_toggled = Signal(bool)
     auto_walk_toggled = Signal(bool)
+    always_on_top_toggled = Signal(bool)
     skin_selected = Signal(str)
     upload_triggered = Signal()
     screenshot_triggered = Signal()
@@ -164,14 +165,40 @@ class PetWindow(QWidget):
         self.apply_settings(settings)
         self._place_initial_position()
 
+    def _ensure_desktop_layer(self) -> None:
+        """非置顶模式下将桌宠固定在桌面底层（高于桌面壁纸与图标、低于所有普通应用窗口）."""
+        if os.name != "nt" or self._settings.get("pet_always_on_top", False):
+            return
+        try:
+            hwnd = int(self.winId())
+            if hwnd:
+                HWND_BOTTOM = 1
+                SWP_NOMOVE = 0x0002
+                SWP_NOSIZE = 0x0001
+                SWP_NOACTIVATE = 0x0010
+                ctypes.windll.user32.SetWindowPos(
+                    hwnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE
+                )
+        except Exception:
+            pass
+
     def _apply_window_flags(self) -> None:
         flags = Qt.WindowType.FramelessWindowHint | Qt.WindowType.Tool
-        if self._settings.get("pet_always_on_top", True):
+        if self._settings.get("pet_always_on_top", False):
             flags |= Qt.WindowType.WindowStaysOnTopHint
+        else:
+            flags |= Qt.WindowType.WindowStaysOnBottomHint
         was_visible = self.isVisible()
         self.setWindowFlags(flags)
         if was_visible:
             self.show()
+        if not self._settings.get("pet_always_on_top", False):
+            QTimer.singleShot(0, self._ensure_desktop_layer)
+
+    def showEvent(self, event) -> None:  # type: ignore[override]
+        super().showEvent(event)
+        if not self._settings.get("pet_always_on_top", False):
+            QTimer.singleShot(0, self._ensure_desktop_layer)
 
     def _build_action_dock(self) -> QWidget:
         dock = QWidget(self)
@@ -310,7 +337,7 @@ class PetWindow(QWidget):
         return int(176 * scale_pct / 100)
 
     def apply_settings(self, settings: dict[str, Any]) -> None:
-        old_top = self._settings.get("pet_always_on_top", True)
+        old_top = bool(self._settings.get("pet_always_on_top", False))
         self._settings = dict(settings)
         self._skin = get_skin(settings.get("active_skin_id", "default_sprite"))
         self._pixmap_cache.clear()
@@ -334,7 +361,7 @@ class PetWindow(QWidget):
             self._state = f"peek_{self._edge_side}" if self._edge_side else "idle"
             self._reload_media_for_state(self._state)
 
-        if old_top != self._settings.get("pet_always_on_top", True):
+        if old_top != bool(self._settings.get("pet_always_on_top", False)):
             self._apply_window_flags()
         self.update()
 
@@ -1402,6 +1429,12 @@ class PetWindow(QWidget):
         a_walk.setChecked(bool(self._settings.get("pet_auto_walk", True)))
         a_walk.toggled.connect(lambda checked: self.auto_walk_toggled.emit(bool(checked)))
         menu.addAction(a_walk)
+
+        a_desktop_only = QAction("只在桌面显示（不遮挡窗口）", self)
+        a_desktop_only.setCheckable(True)
+        a_desktop_only.setChecked(not bool(self._settings.get("pet_always_on_top", False)))
+        a_desktop_only.toggled.connect(lambda checked: self.always_on_top_toggled.emit(not bool(checked)))
+        menu.addAction(a_desktop_only)
 
         skins_menu = menu.addMenu("切换角色形象")
         active_skin_id = str(self._settings.get("active_skin_id") or "default_sprite")

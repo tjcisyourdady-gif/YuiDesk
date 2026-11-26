@@ -13,19 +13,16 @@ class CareWindow(QWidget):
     CARD_WIDTH = 360
     CARD_HEIGHT = 480
 
-    def __init__(self, base_url: str) -> None:
+    def __init__(self, base_url: str, always_on_top: bool = False) -> None:
         super().__init__(None)
         self._base_url = base_url.rstrip("/")
+        self._always_on_top = bool(always_on_top)
         self._anchor_pet: QWidget | None = None
         self._page_ready = False
 
         self.setWindowTitle("YuiDesk 养成")
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
-        self.setWindowFlags(
-            Qt.WindowType.FramelessWindowHint
-            | Qt.WindowType.WindowStaysOnTopHint
-            | Qt.WindowType.Tool
-        )
+        self._apply_flags(show_again=False)
         self.resize(self.CARD_WIDTH, self.CARD_HEIGHT)
 
         layout = QVBoxLayout(self)
@@ -41,6 +38,22 @@ class CareWindow(QWidget):
         self._view.loadFinished.connect(lambda _ok: setattr(self, "_page_ready", True))
         self._view.setUrl(QUrl(self._base_url + "/care"))
         layout.addWidget(self._view)
+
+    def _apply_flags(self, show_again: bool = True) -> None:
+        flags = Qt.WindowType.FramelessWindowHint | Qt.WindowType.Tool
+        if self._always_on_top:
+            flags |= Qt.WindowType.WindowStaysOnTopHint
+        was_vis = self.isVisible()
+        self.setWindowFlags(flags)
+        if show_again and was_vis:
+            self.show()
+
+    def set_always_on_top(self, enabled: bool) -> None:
+        clean = bool(enabled)
+        if clean == self._always_on_top:
+            return
+        self._always_on_top = clean
+        self._apply_flags(show_again=True)
 
     def refresh(self) -> None:
         if self._page_ready:

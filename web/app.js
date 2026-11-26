@@ -1,6 +1,6 @@
 (() => {
   const state = {
-    appVersion: "1.2.4",
+    appVersion: "1.2.5",
     repoUrl: "https://github.com/tjcisyourdady-gif/YuiDesk",
     settings: {},
     providers: [],
@@ -2156,6 +2156,7 @@
       renderUnifiedModelSelect();
       renderEffortSelect();
       if ($("petAutoWalk")) $("petAutoWalk").checked = state.settings.pet_auto_walk !== false;
+      if ($("petAlwaysOnTop")) $("petAlwaysOnTop").checked = !!state.settings.pet_always_on_top;
     } else if (name === "project_selected" && payload?.settings) {
       state.settings = payload.settings;
       state.activeMode = "work";

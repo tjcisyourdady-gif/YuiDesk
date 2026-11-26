@@ -1,18 +1,18 @@
 {
-  "version": "1.2.4",
+  "version": "1.2.5",
   "released_at": "2026-11-26",
-  "notes": "1. 自动更新全链路测试版本（v1.2.4）：验证国内多节点并发测速下载、SHA-256 校验与一键「安装并重启」完整闭环\n2. 轻量增量补丁包仅约 11 MB，升级不改动聊天记录、皮肤设置与 Kimi 登录状态",
+  "notes": "1. 桌宠、对话框与养成面板默认改为「只在桌面显示」，不再悬浮遮挡浏览器/办公/游戏等其他软件窗口\n2. 桌宠右键菜单新增「只在桌面显示（不遮挡窗口）」一键开关，随时可按需切回置顶模式\n3. 更新器新增 Release 标签校验，即使同仓库发布其他项目版本也不会干扰 YuiDesk 检测更新",
   "min_patch_version": "1.0.0",
   "patch": {
     "filename": "YuiDesk_patch.zip",
-    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.4/YuiDesk_patch.zip",
-    "sha256": "cb3bbe5f53c14fa7c8caaba91df58d9fbb487f2a150c27a1b1ce187bb792921b",
-    "size_bytes": 11538363
+    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.5/YuiDesk_patch.zip",
+    "sha256": "d707cbbd93b3ecdfc2b78c12fb1214a4b895e22586c5fcf5d4151cda8eb8654b",
+    "size_bytes": 11541464
   },
   "full": {
     "filename": "YuiDesk_portable.zip",
-    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.4/YuiDesk_portable.zip",
-    "sha256": "3c789ed14373a7bf51f1c0814d99ba2f3f7154063b53c495ed85ec3f56e00d29",
-    "size_bytes": 333638165
+    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.5/YuiDesk_portable.zip",
+    "sha256": "7a6f418f776d1e33745adfbd83282bfd99930b25f949f31c5e283ae78ab9485b",
+    "size_bytes": 333638964
   }
 }

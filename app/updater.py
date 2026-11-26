@@ -235,6 +235,10 @@ class UpdateManager:
         raise RuntimeError("无法连接到更新服务器（已尝试 GitHub 与国内镜像）：" + "; ".join(errors[:3]))
 
     def _parse_github_release_api(self, client: httpx.Client, rel: dict[str, Any]) -> dict[str, Any] | None:
+        tag = str(rel.get("tag_name") or "").strip()
+        # 防止同仓库下其他项目（如 ncc-cashier-*）的 Release 被误判为 YuiDesk 版本
+        if not re.match(r"^v?\d+\.\d+", tag, re.IGNORECASE):
+            return None
         assets = rel.get("assets") if isinstance(rel.get("assets"), list) else []
         # 若 Release 附带了 latest.json，直接读取其中的 SHA-256 清单
         for a in assets:

@@ -33,9 +33,10 @@ class ChatWindow(QWidget):
     COMPACT_HEIGHT = 132
     MAX_DIALOG_HEIGHT = 720
 
-    def __init__(self, base_url: str) -> None:
+    def __init__(self, base_url: str, always_on_top: bool = False) -> None:
         super().__init__(None)
         self._base_url = base_url.rstrip("/")
+        self._always_on_top = bool(always_on_top)
         self._mode = "dialog"  # dialog | settings
         self._dialog_width = self.SIDEBAR_DIALOG_WIDTH
         self._dialog_height = 330
@@ -119,17 +120,32 @@ class ChatWindow(QWidget):
         if self._mode == "dialog" and self.isVisible():
             self._position_under_pet()
 
+    def _dialog_window_flags(self) -> Qt.WindowType:
+        flags = Qt.WindowType.FramelessWindowHint | Qt.WindowType.Tool
+        if self._always_on_top:
+            flags |= Qt.WindowType.WindowStaysOnTopHint
+        return flags
+
+    def set_always_on_top(self, enabled: bool) -> None:
+        clean = bool(enabled)
+        if clean == self._always_on_top:
+            return
+        self._always_on_top = clean
+        if self._mode == "dialog":
+            was_vis = self.isVisible()
+            self.setWindowFlags(self._dialog_window_flags())
+            self._view.page().setBackgroundColor(QColor(0, 0, 0, 0))
+            if was_vis:
+                self.show()
+
     def show_under_pet(self, pet_widget: QWidget) -> None:
         """在桌宠正下方弹出无边框紧凑圆角输入卡片."""
         self._anchor_pet = pet_widget
         switching = self._mode != "dialog"
         self._mode = "dialog"
-        if switching or not (self.windowFlags() & Qt.WindowType.FramelessWindowHint):
-            self.setWindowFlags(
-                Qt.WindowType.FramelessWindowHint
-                | Qt.WindowType.WindowStaysOnTopHint
-                | Qt.WindowType.Tool
-            )
+        desired_flags = self._dialog_window_flags()
+        if switching or self.windowFlags() != desired_flags:
+            self.setWindowFlags(desired_flags)
             self._view.page().setBackgroundColor(QColor(0, 0, 0, 0))
 
         self._position_under_pet()

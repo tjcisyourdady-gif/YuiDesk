@@ -35,7 +35,7 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "dialog_width": 496,
     "dialog_max_height": 400,
     "dialog_font_size": 11.5,
-    "pet_always_on_top": True,
+    "pet_always_on_top": False,
     "pet_edge_hide": True,
     "pet_auto_walk": True,
     "pet_idle_bubbles": True,
@@ -152,6 +152,20 @@ class Database:
             msg_cols = {r["name"] for r in conn.execute("PRAGMA table_info(messages)").fetchall()}
             if "steps_json" not in msg_cols:
                 conn.execute("ALTER TABLE messages ADD COLUMN steps_json TEXT NOT NULL DEFAULT '[]'")
+
+            # v1.2.5 一次性迁移：将既有用户的默认置顶切换为「只在桌面显示（不遮挡其他软件窗口）」
+            mig_row = conn.execute(
+                "SELECT value FROM settings WHERE key = '_migrated_desktop_only_v125'"
+            ).fetchone()
+            if not mig_row:
+                conn.execute(
+                    "INSERT INTO settings (key, value) VALUES ('pet_always_on_top', 'false') "
+                    "ON CONFLICT(key) DO UPDATE SET value = 'false'"
+                )
+                conn.execute(
+                    "INSERT INTO settings (key, value) VALUES ('_migrated_desktop_only_v125', 'true') "
+                    "ON CONFLICT(key) DO UPDATE SET value = 'true'"
+                )
 
             now = time.time()
             # 仅保留 Kimi 专属通道，自动清理旧版本残留的其他供应商

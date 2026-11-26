@@ -137,10 +137,11 @@ def main() -> int:
             time.sleep(0.05)
 
     settings = db.get_settings()
+    init_top = bool(settings.get("pet_always_on_top", False))
     pet = PetWindow(settings)
-    chat = ChatWindow(base_url)
+    chat = ChatWindow(base_url, always_on_top=init_top)
     chat.setWindowIcon(app_icon)
-    care_win = CareWindow(base_url)
+    care_win = CareWindow(base_url, always_on_top=init_top)
     care_win.setWindowIcon(app_icon)
     screenshot = ScreenshotOverlay()
 
@@ -153,7 +154,8 @@ def main() -> int:
                 conn.readAll()
                 conn.close()
             pet.show()
-            pet.raise_()
+            if bool(db.get_settings().get("pet_always_on_top", False)):
+                pet.raise_()
             chat.show_under_pet(pet)
 
         single_server.newConnection.connect(_on_second_instance)
@@ -175,7 +177,10 @@ def main() -> int:
     bridge.care_window_requested.connect(_on_care_window)
 
     def _on_settings_changed(new_settings: dict[str, Any]) -> None:
+        top = bool(new_settings.get("pet_always_on_top", False))
         pet.apply_settings(new_settings)
+        chat.set_always_on_top(top)
+        care_win.set_always_on_top(top)
         care_win.refresh()
         _set_windows_startup(bool(new_settings.get("launch_at_startup", False)))
         _register_hotkeys(new_settings)
@@ -293,6 +298,16 @@ def main() -> int:
         pet.show_bubble("已开启桌面漫游" if enabled else "已关闭桌面漫游", duration=2.2)
 
     pet.auto_walk_toggled.connect(_on_auto_walk_toggled)
+
+    def _on_always_on_top_toggled(enabled: bool) -> None:
+        updated = db.update_settings({"pet_always_on_top": enabled})
+        pet.apply_settings(updated)
+        chat.set_always_on_top(enabled)
+        care_win.set_always_on_top(enabled)
+        chat.dispatch_event("sync_settings", {"settings": updated})
+        pet.show_bubble("已开启始终置顶" if enabled else "已切换为只在桌面显示", duration=2.4)
+
+    pet.always_on_top_toggled.connect(_on_always_on_top_toggled)
 
     def _on_skin_selected(skin_id: str) -> None:
         from app.skins import get_skin
