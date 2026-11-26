@@ -1,18 +1,18 @@
 {
-  "version": "1.2.3",
-  "released_at": "2026-11-25",
-  "notes": "1. 彻底修复点击「安装并重启」无反应的 Windows 子进程标志冲突 Bug（去除互斥的 DETACHED_PROCESS 标志）\n2. 更新重启前主动关闭单实例管道并增加文件覆盖重试与强制释放锁兜底，确保覆盖后自动拉起新版\n3. 修复 GitHub Release 页面中文更新说明乱码问题（全链路 UTF-8 发布）",
+  "version": "1.2.4",
+  "released_at": "2026-11-26",
+  "notes": "1. 自动更新全链路测试版本（v1.2.4）：验证国内多节点并发测速下载、SHA-256 校验与一键「安装并重启」完整闭环\n2. 轻量增量补丁包仅约 11 MB，升级不改动聊天记录、皮肤设置与 Kimi 登录状态",
   "min_patch_version": "1.0.0",
   "patch": {
     "filename": "YuiDesk_patch.zip",
-    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.3/YuiDesk_patch.zip",
-    "sha256": "1ba6d2500efe3839f1578d76702804e488effbbcaea1b31c8aea45e06151fa8b",
-    "size_bytes": 11538366
+    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.4/YuiDesk_patch.zip",
+    "sha256": "cb3bbe5f53c14fa7c8caaba91df58d9fbb487f2a150c27a1b1ce187bb792921b",
+    "size_bytes": 11538363
   },
   "full": {
     "filename": "YuiDesk_portable.zip",
-    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.3/YuiDesk_portable.zip",
-    "sha256": "de9387e0f6440e2787f9db2b959d5d64a94385bd30a398ce91b7e82afdba0c72",
-    "size_bytes": 333638435
+    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.4/YuiDesk_portable.zip",
+    "sha256": "3c789ed14373a7bf51f1c0814d99ba2f3f7154063b53c495ed85ec3f56e00d29",
+    "size_bytes": 333638165
   }
 }

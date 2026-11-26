@@ -195,9 +195,8 @@ manifest = {
     'version': APP_VERSION,
     'released_at': time.strftime('%Y-%m-%d'),
     'notes': (
-        '1. 彻底修复点击「安装并重启」无反应的 Windows 子进程标志冲突 Bug（去除互斥的 DETACHED_PROCESS 标志）\n'
-        '2. 更新重启前主动关闭单实例管道并增加文件覆盖重试与强制释放锁兜底，确保覆盖后自动拉起新版\n'
-        '3. 修复 GitHub Release 页面中文更新说明乱码问题（全链路 UTF-8 发布）'
+        '1. 自动更新全链路测试版本（v1.2.4）：验证国内多节点并发测速下载、SHA-256 校验与一键「安装并重启」完整闭环\n'
+        '2. 轻量增量补丁包仅约 11 MB，升级不改动聊天记录、皮肤设置与 Kimi 登录状态'
     ),
     'min_patch_version': '1.0.0',
     'patch': {
