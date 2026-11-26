@@ -1,18 +1,18 @@
 {
-  "version": "1.2.5",
+  "version": "1.2.6",
   "released_at": "2026-11-26",
-  "notes": "1. 桌宠、对话框与养成面板默认改为「只在桌面显示」，不再悬浮遮挡浏览器/办公/游戏等其他软件窗口\n2. 桌宠右键菜单新增「只在桌面显示（不遮挡窗口）」一键开关，随时可按需切回置顶模式\n3. 更新器新增 Release 标签校验，即使同仓库发布其他项目版本也不会干扰 YuiDesk 检测更新",
+  "notes": "1. 修复对话框与养成面板层级：在桌面模式下与桌宠严格处于同一桌面层（WindowStaysOnBottomHint），绝不浮在其他软件上方\n2. 托盘/快捷键协同置顶：从右下角托盘图标或 Alt+Space 唤醒对话时，桌宠与对话框一起临时浮到最上层；点击「收起」或按 Esc 后自动一起回落回桌面层",
   "min_patch_version": "1.0.0",
   "patch": {
     "filename": "YuiDesk_patch.zip",
-    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.5/YuiDesk_patch.zip",
-    "sha256": "d707cbbd93b3ecdfc2b78c12fb1214a4b895e22586c5fcf5d4151cda8eb8654b",
-    "size_bytes": 11541464
+    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.6/YuiDesk_patch.zip",
+    "sha256": "1cb6436e922a814a9158e9de1bc448774cfe1254be92058f44f7201f1a9920c6",
+    "size_bytes": 11544441
   },
   "full": {
     "filename": "YuiDesk_portable.zip",
-    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.5/YuiDesk_portable.zip",
-    "sha256": "7a6f418f776d1e33745adfbd83282bfd99930b25f949f31c5e283ae78ab9485b",
-    "size_bytes": 333638964
+    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.6/YuiDesk_portable.zip",
+    "sha256": "69349ca7746bf31296f82b55fa6035f2aa3a1a72bb3722ae70ed4c2c3cca5188",
+    "size_bytes": 333644207
   }
 }

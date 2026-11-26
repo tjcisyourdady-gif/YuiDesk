@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from PySide6.QtCore import QRect, Qt, QUrl
+import ctypes
+import os
+
+from PySide6.QtCore import QRect, Qt, QTimer, QUrl
 from PySide6.QtGui import QColor, QCloseEvent
 from PySide6.QtWebEngineCore import QWebEngineSettings
 from PySide6.QtWebEngineWidgets import QWebEngineView
@@ -39,14 +42,36 @@ class CareWindow(QWidget):
         self._view.setUrl(QUrl(self._base_url + "/care"))
         layout.addWidget(self._view)
 
+    def _ensure_desktop_layer(self) -> None:
+        if os.name != "nt" or self._always_on_top:
+            return
+        try:
+            hwnd = int(self.winId())
+            if hwnd:
+                HWND_BOTTOM = 1
+                SWP_NOMOVE = 0x0002
+                SWP_NOSIZE = 0x0001
+                SWP_NOACTIVATE = 0x0010
+                ctypes.windll.user32.SetWindowPos(
+                    hwnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE
+                )
+        except Exception:
+            pass
+
     def _apply_flags(self, show_again: bool = True) -> None:
         flags = Qt.WindowType.FramelessWindowHint | Qt.WindowType.Tool
         if self._always_on_top:
             flags |= Qt.WindowType.WindowStaysOnTopHint
+        else:
+            flags |= Qt.WindowType.WindowStaysOnBottomHint
         was_vis = self.isVisible()
         self.setWindowFlags(flags)
         if show_again and was_vis:
             self.show()
+            if self._always_on_top:
+                self.raise_()
+            else:
+                QTimer.singleShot(0, self._ensure_desktop_layer)
 
     def set_always_on_top(self, enabled: bool) -> None:
         clean = bool(enabled)
@@ -54,6 +79,11 @@ class CareWindow(QWidget):
             return
         self._always_on_top = clean
         self._apply_flags(show_again=True)
+
+    def showEvent(self, event) -> None:  # type: ignore[override]
+        super().showEvent(event)
+        if not self._always_on_top:
+            QTimer.singleShot(0, self._ensure_desktop_layer)
 
     def refresh(self) -> None:
         if self._page_ready:
@@ -86,7 +116,10 @@ class CareWindow(QWidget):
         self._anchor_pet = pet_widget
         self._position_near_pet()
         self.show()
-        self.raise_()
+        if self._always_on_top:
+            self.raise_()
+        else:
+            QTimer.singleShot(0, self._ensure_desktop_layer)
         self.activateWindow()
         self.refresh()
 

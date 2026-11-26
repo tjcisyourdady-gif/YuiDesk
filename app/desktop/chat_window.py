@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import ctypes
 import json
+import os
 from typing import Any
 
-from PySide6.QtCore import QRect, Qt, QUrl
+from PySide6.QtCore import QRect, Qt, QTimer, QUrl, Signal
 from PySide6.QtGui import QColor, QCloseEvent
 from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineSettings
 from PySide6.QtWebEngineWidgets import QWebEngineView
@@ -28,6 +30,8 @@ class _ExternalLinkPage(QWebEnginePage):
 
 
 class ChatWindow(QWidget):
+    dialog_hidden = Signal()
+
     DIALOG_WIDTH = 360
     SIDEBAR_DIALOG_WIDTH = 496
     COMPACT_HEIGHT = 132
@@ -124,7 +128,26 @@ class ChatWindow(QWidget):
         flags = Qt.WindowType.FramelessWindowHint | Qt.WindowType.Tool
         if self._always_on_top:
             flags |= Qt.WindowType.WindowStaysOnTopHint
+        else:
+            # 与桌宠保持同一桌面层等级，不浮在其他应用窗口之上
+            flags |= Qt.WindowType.WindowStaysOnBottomHint
         return flags
+
+    def _ensure_desktop_layer(self) -> None:
+        if os.name != "nt" or self._always_on_top or self._mode != "dialog":
+            return
+        try:
+            hwnd = int(self.winId())
+            if hwnd:
+                HWND_BOTTOM = 1
+                SWP_NOMOVE = 0x0002
+                SWP_NOSIZE = 0x0001
+                SWP_NOACTIVATE = 0x0010
+                ctypes.windll.user32.SetWindowPos(
+                    hwnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE
+                )
+        except Exception:
+            pass
 
     def set_always_on_top(self, enabled: bool) -> None:
         clean = bool(enabled)
@@ -137,6 +160,10 @@ class ChatWindow(QWidget):
             self._view.page().setBackgroundColor(QColor(0, 0, 0, 0))
             if was_vis:
                 self.show()
+                if clean:
+                    self.raise_()
+                else:
+                    QTimer.singleShot(0, self._ensure_desktop_layer)
 
     def show_under_pet(self, pet_widget: QWidget) -> None:
         """在桌宠正下方弹出无边框紧凑圆角输入卡片."""
@@ -150,7 +177,10 @@ class ChatWindow(QWidget):
 
         self._position_under_pet()
         self.show()
-        self.raise_()
+        if self._always_on_top:
+            self.raise_()
+        else:
+            QTimer.singleShot(0, self._ensure_desktop_layer)
         self.activateWindow()
         self.dispatch_event("open_dialog", {})
 
@@ -171,12 +201,23 @@ class ChatWindow(QWidget):
         self.activateWindow()
         self.dispatch_event("open_settings", {"tab": tab})
 
+    def hide_dialog(self) -> None:
+        was_vis = self.isVisible()
+        self.hide()
+        if was_vis:
+            self.dialog_hidden.emit()
+
     def toggle_under_pet(self, pet_widget: QWidget) -> None:
         if self.isVisible() and self._mode == "dialog":
-            self.hide()
+            self.hide_dialog()
         else:
             self.show_under_pet(pet_widget)
 
+    def showEvent(self, event) -> None:  # type: ignore[override]
+        super().showEvent(event)
+        if not self._always_on_top and self._mode == "dialog":
+            QTimer.singleShot(0, self._ensure_desktop_layer)
+
     def closeEvent(self, event: QCloseEvent) -> None:  # type: ignore[override]
         event.ignore()
-        self.hide()
+        self.hide_dialog()

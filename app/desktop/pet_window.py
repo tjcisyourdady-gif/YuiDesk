@@ -86,6 +86,7 @@ class PetWindow(QWidget):
     def __init__(self, settings: dict[str, Any]) -> None:
         super().__init__(None)
         self._settings = dict(settings)
+        self._temp_on_top = False
         self._skin = get_skin(settings.get("active_skin_id", "default_sprite"))
         self._renderer = AnimePetRenderer()
         self._icon_provider = QFileIconProvider()
@@ -165,9 +166,24 @@ class PetWindow(QWidget):
         self.apply_settings(settings)
         self._place_initial_position()
 
+    def _is_effective_top(self) -> bool:
+        return bool(self._settings.get("pet_always_on_top", False) or self._temp_on_top)
+
+    def set_temp_on_top(self, enabled: bool) -> None:
+        """从托盘/快捷键唤醒对话时，临时让桌宠与对话框一起浮到最上层；关闭后恢复桌面层."""
+        clean = bool(enabled)
+        if clean == self._temp_on_top:
+            if clean and self.isVisible():
+                self.raise_()
+            return
+        self._temp_on_top = clean
+        self._apply_window_flags()
+        if self._is_effective_top() and self.isVisible():
+            self.raise_()
+
     def _ensure_desktop_layer(self) -> None:
         """非置顶模式下将桌宠固定在桌面底层（高于桌面壁纸与图标、低于所有普通应用窗口）."""
-        if os.name != "nt" or self._settings.get("pet_always_on_top", False):
+        if os.name != "nt" or self._is_effective_top():
             return
         try:
             hwnd = int(self.winId())
@@ -184,7 +200,7 @@ class PetWindow(QWidget):
 
     def _apply_window_flags(self) -> None:
         flags = Qt.WindowType.FramelessWindowHint | Qt.WindowType.Tool
-        if self._settings.get("pet_always_on_top", False):
+        if self._is_effective_top():
             flags |= Qt.WindowType.WindowStaysOnTopHint
         else:
             flags |= Qt.WindowType.WindowStaysOnBottomHint
@@ -192,12 +208,12 @@ class PetWindow(QWidget):
         self.setWindowFlags(flags)
         if was_visible:
             self.show()
-        if not self._settings.get("pet_always_on_top", False):
+        if not self._is_effective_top():
             QTimer.singleShot(0, self._ensure_desktop_layer)
 
     def showEvent(self, event) -> None:  # type: ignore[override]
         super().showEvent(event)
-        if not self._settings.get("pet_always_on_top", False):
+        if not self._is_effective_top():
             QTimer.singleShot(0, self._ensure_desktop_layer)
 
     def _build_action_dock(self) -> QWidget:

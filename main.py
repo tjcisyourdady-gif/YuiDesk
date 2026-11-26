@@ -145,6 +145,36 @@ def main() -> int:
     care_win.setWindowIcon(app_icon)
     screenshot = ScreenshotOverlay()
 
+    # 临时置顶状态：从托盘/快捷键唤醒对话框时，桌宠和对话框一起浮到最上层；关闭对话后自动回落到桌面层
+    float_state = {"temp_top": False}
+
+    def _sync_layer_windows() -> None:
+        perm_top = bool(db.get_settings().get("pet_always_on_top", False))
+        eff_top = perm_top or bool(float_state["temp_top"])
+        pet.set_temp_on_top(bool(float_state["temp_top"]))
+        chat.set_always_on_top(eff_top)
+        care_win.set_always_on_top(eff_top)
+
+    def _clear_temp_float() -> None:
+        if float_state["temp_top"]:
+            float_state["temp_top"] = False
+            _sync_layer_windows()
+
+    def _show_dialog_from_tray() -> None:
+        float_state["temp_top"] = True
+        _sync_layer_windows()
+        pet.show()
+        pet.raise_()
+        chat.show_under_pet(pet)
+
+    def _toggle_dialog_from_tray() -> None:
+        if chat.isVisible() and chat._mode == "dialog":
+            chat.hide_dialog()
+        else:
+            _show_dialog_from_tray()
+
+    chat.dialog_hidden.connect(_clear_temp_float)
+
     # 单实例唤醒服务
     single_server = QLocalServer(qt_app)
     if not os.environ.get("YUIDESK_ALLOW_MULTI"):
@@ -153,10 +183,7 @@ def main() -> int:
             if conn:
                 conn.readAll()
                 conn.close()
-            pet.show()
-            if bool(db.get_settings().get("pet_always_on_top", False)):
-                pet.raise_()
-            chat.show_under_pet(pet)
+            _show_dialog_from_tray()
 
         single_server.newConnection.connect(_on_second_instance)
         single_server.listen(instance_key)
@@ -177,10 +204,8 @@ def main() -> int:
     bridge.care_window_requested.connect(_on_care_window)
 
     def _on_settings_changed(new_settings: dict[str, Any]) -> None:
-        top = bool(new_settings.get("pet_always_on_top", False))
         pet.apply_settings(new_settings)
-        chat.set_always_on_top(top)
-        care_win.set_always_on_top(top)
+        _sync_layer_windows()
         care_win.refresh()
         _set_windows_startup(bool(new_settings.get("launch_at_startup", False)))
         _register_hotkeys(new_settings)
@@ -193,9 +218,10 @@ def main() -> int:
         if action in ("bubble", "dialog", "workspace"):
             chat.show_under_pet(pet)
         elif action == "settings":
+            _clear_temp_float()
             chat.show_settings()
         elif action == "hide":
-            chat.hide()
+            chat.hide_dialog()
         elif action == "toggle":
             chat.toggle_under_pet(pet)
 
@@ -301,9 +327,10 @@ def main() -> int:
 
     def _on_always_on_top_toggled(enabled: bool) -> None:
         updated = db.update_settings({"pet_always_on_top": enabled})
+        if not enabled:
+            float_state["temp_top"] = False
         pet.apply_settings(updated)
-        chat.set_always_on_top(enabled)
-        care_win.set_always_on_top(enabled)
+        _sync_layer_windows()
         chat.dispatch_event("sync_settings", {"settings": updated})
         pet.show_bubble("已开启始终置顶" if enabled else "已切换为只在桌面显示", duration=2.4)
 
@@ -323,7 +350,7 @@ def main() -> int:
     pet.upload_triggered.connect(
         lambda: (chat.show_under_pet(pet), QTimer.singleShot(180, lambda: chat.dispatch_event("trigger_upload", {})))
     )
-    pet.settings_triggered.connect(lambda: chat.show_settings())
+    pet.settings_triggered.connect(lambda: (_clear_temp_float(), chat.show_settings()))
     pet.screenshot_triggered.connect(lambda: QTimer.singleShot(120, screenshot.start_capture))
 
     def _handle_read_files(paths: list[str]) -> None:
@@ -419,7 +446,7 @@ def main() -> int:
     def _on_screenshot_captured(png_bytes: bytes) -> None:
         att = process_uploaded_image(f"screenshot_{int(time.time())}.png", png_bytes)
         att_slim = {k: v for k, v in att.items() if k != "data_url"}
-        chat.show_under_pet(pet)
+        _show_dialog_from_tray()
         chat.dispatch_event("add_attachment", {"attachment": att_slim, "focus_input": True})
         pet.set_state("happy", "截屏已添加到对话框")
 
@@ -431,7 +458,7 @@ def main() -> int:
 
     def _register_hotkeys(cur_settings: dict[str, Any]) -> None:
         hotkeys.unregister_all()
-        hotkeys.register(cur_settings.get("hotkey_toggle", "Alt+Space"), lambda: chat.toggle_under_pet(pet))
+        hotkeys.register(cur_settings.get("hotkey_toggle", "Alt+Space"), _toggle_dialog_from_tray)
         hotkeys.register(cur_settings.get("hotkey_screenshot", "Alt+S"), lambda: screenshot.start_capture())
 
     _register_hotkeys(settings)
@@ -459,10 +486,10 @@ def main() -> int:
 
     tray = TrayManager(
         parent=qt_app,
-        on_toggle_chat=lambda: chat.toggle_under_pet(pet),
+        on_toggle_chat=_toggle_dialog_from_tray,
         on_screenshot=lambda: QTimer.singleShot(120, screenshot.start_capture),
         on_toggle_pet=lambda: pet.hide() if pet.isVisible() else pet.show(),
-        on_open_settings=lambda: chat.show_settings(),
+        on_open_settings=lambda: (_clear_temp_float(), chat.show_settings()),
         on_quit=_quit_app,
     )
     pet.quit_triggered.connect(_quit_app)
