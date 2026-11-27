@@ -123,11 +123,13 @@ $guide = @"
 - 方式二（备用 · 官方 API Key，无需安装 Git）：
   直接填入你在 platform.moonshot.cn 申请的 Kimi API Key 并点击「启用 API 模式」。
 
-【3. 内置 3 套全动画角色（共 90 帧），随时右键一键切换】
+【3. 内置 5 套全动画角色（共 150 帧），随时右键一键切换】
 右键桌宠 ->「切换角色形象」：
-1) 轻音元气少女（30 帧全动画）
-2) 桃橘小狐狸·四足原生态版（30 帧全动画）
-3) 桃橘小狐狸·Q版站姿（30 帧全动画）
+1) 怪物猎人·橡子艾露猫（30 帧全动画）
+2) 深海怪兽王·哥斯拉（30 帧巨兽全动画 · 2.85x 霸气巨型）
+3) 轻音元气少女（30 帧全动画）
+4) 桃橘小狐狸·四足原生态版（30 帧全动画）
+5) 桃橘小狐狸·Q版站姿（30 帧全动画）
 （也支持在设置中导入自己的 PNG / GIF / ZIP 皮肤包）
 
 【4. 常用玩法】
@@ -164,10 +166,14 @@ if ($IncludeSkins) {
     Copy-Item -Recurse -Force (Join-Path $distDir "skins") (Join-Path $patchStage "skins")
     Write-Host "    补丁包模式：含全量角色皮肤图片" -ForegroundColor Gray
 } elseif ($PatchSkin) {
-    $skinDst = Join-Path $patchStage "_internal\skins\$PatchSkin"
-    New-Item -ItemType Directory -Force -Path (Split-Path $skinDst -Parent) | Out-Null
-    Copy-Item -Recurse -Force (Join-Path $distDir "_internal\skins\$PatchSkin") $skinDst
-    Write-Host "    补丁包模式：程序+前端+新增皮肤 [$PatchSkin]（增量极速下载）" -ForegroundColor Gray
+    foreach ($sk in ($PatchSkin -split ',')) {
+        $skName = $sk.Trim()
+        if (-not $skName) { continue }
+        $skinDst = Join-Path $patchStage "_internal\skins\$skName"
+        New-Item -ItemType Directory -Force -Path (Split-Path $skinDst -Parent) | Out-Null
+        Copy-Item -Recurse -Force (Join-Path $distDir "_internal\skins\$skName") $skinDst
+    }
+    Write-Host "    补丁包模式：程序+前端+新增/更新皮肤 [$PatchSkin]（增量极速下载）" -ForegroundColor Gray
 } else {
     Write-Host "    补丁包模式：超轻量程序+前端补丁（约 11 MB，极速下载）" -ForegroundColor Gray
 }
@@ -201,9 +207,9 @@ manifest = {
     'version': APP_VERSION,
     'released_at': time.strftime('%Y-%m-%d'),
     'notes': (
-        '1. 重磅新增「深海怪兽王·哥斯拉」30 帧全动画巨型皮肤，专属 1.85 倍超大巨兽体型（约 325px），升级后自动切换登场（随时可在右键菜单切回小狐狸/轻音少女）\n'
-        '2. 30 帧全套怪兽原创动作：原子吐息回复、啃核能小电池、泡海面温泉降温、背鳍蓄能、巡视微缩城市、怪兽胜利蹦迪、短手害羞捂脸、扒边偷看\n'
-        '3. 养成面板同步专属「怪兽补给站」互动与道具文案，支持角色独立体型倍率（size_multiplier）自动贴合屏幕边界'
+        '1. 全新重磅角色「怪物猎人·橡子艾露猫（30 帧全动画）」登场！经典橡子头盔、橡子铠甲、亮红猎人领巾与木槌武器，全套怪猎经典动作（旋转烤肉架、啃烤熟的生肉、回复蜜虫露、吹奏回复笛、导虫望远镜、大爆桶炸糊、营地补给箱摸鱼）与专属「艾露猫食堂」养成\n'
+        '2. 同步升级「深海怪兽王·哥斯拉」：体型暴涨至真正的 2.85x 巨兽级（约 500px 占半屏高），重绘霸气催饭动作告别哭哭啼啼，且呼出对话框时智能停靠巨兽身旁不遮挡\n'
+        '3. 升级自动换上艾露猫，随时可在右键菜单「切换角色形象」在艾露猫、巨型哥斯拉、小狐狸、轻音少女间一键自由切换'
     ),
     'min_patch_version': '1.0.0',
     'patch': {

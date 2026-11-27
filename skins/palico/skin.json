@@ -1,0 +1,102 @@
+{
+  "id": "palico",
+  "name": "怪物猎人·橡子艾露猫（30 帧全动画）",
+  "author": "YuiDesk",
+  "description": "致敬《怪物猎人》经典随从艾露猫：奶白橘纹萌猫身姿、标志性圆滚滚橡子头盔与橡子铠甲、亮红猎人领巾与木槌武器，全套 30 帧怪猎经典动作（旋转烤肉架、啃烤熟的生肉、回复蜜虫露、吹奏回复笛、导虫望远镜追踪、大爆桶炸糊名场面、营地补给箱摸鱼）",
+  "render_mode": "image",
+  "accent_color": "#D9533F",
+  "size_multiplier": 1.18,
+  "default_persona_id": "yui_cheerful",
+  "file_anchors": {
+    "eat_x": 0.66,
+    "eat_y": 0.34,
+    "inspect_x": 0.72,
+    "inspect_y": 0.52
+  },
+  "state_labels": {
+    "speaking": "吹奏回复笛",
+    "searching": "导虫望远镜",
+    "reading": "翻看狩猎笔记",
+    "error": "爆桶炸糊了喵",
+    "pet_head": "顺毛咕噜喵",
+    "eat_cake": "啃烤熟的生肉",
+    "practice_guitar": "敲珊瑚大乐团",
+    "study_desk": "猫式旋转烤肉",
+    "tea": "喝回复蜜虫露",
+    "sit_swing": "坐补给箱摸鱼",
+    "music_dance": "猫饭开饭舞",
+    "stretch": "猫猫大伸懒腰",
+    "shy_blush": "压帽檐害羞",
+    "proud_pose": "王牌随从猫"
+  },
+  "care_overrides": {
+    "shop_title": "艾露猫食堂与随从补给站（购买后可从背包投喂或送给艾露猫）",
+    "actions": {
+      "pet": { "name": "顺毛挠下巴", "bubble": "咕噜咕噜喵~ 猎人手艺真好，干劲满满喵！" },
+      "praise": { "name": "夸夸王牌随从", "bubble": "哼哼，本喵可是调查团头号王牌随从猫喵！" },
+      "music": { "name": "跳猫饭开饭舞", "bubble": "上吧上吧开饭喵~ 跳支舞给猎人加满士气！" },
+      "sit": { "name": "坐补给箱摸鱼", "bubble": "在营地补给箱上晃晃小爪子，休息一下准备出征喵~" },
+      "guitar": { "name": "吹奏珊瑚大乐团", "bubble": "咚咚嗒！攻击力UP大生效，还顺手采集了 22 枚零花钱喵！" },
+      "study": { "name": "猫式旋转烤肉", "bubble": "烤得正好喵！香喷喷的烤肉和狩猎经验都到手啦！" },
+      "stretch": { "name": "猫猫伸懒腰", "bubble": "伸个长长的猫猫懒腰，出发前热身完毕喵~" },
+      "nap": { "name": "团球营地打盹", "bubble": "盖着橡子帽在营地团成球打个盹喵，Zzz..." }
+    },
+    "items": {
+      "black_tea": { "name": "回复蜜虫露", "bubble": "咕嘟咕嘟喝下回复蜜虫露，体力瞬间回满喵！" },
+      "dorayaki": { "name": "兔团子猫饭", "bubble": "软糯糯的三色兔团子！猫的医疗术发动喵！" },
+      "strawberry_cake": { "name": "烤得正好的肉", "bubble": "上手に焼けました！金黄流油的大块带骨烤肉最棒了喵！" },
+      "matcha_pudding": { "name": "回复药G果冻", "bubble": "清清爽爽的草药味果冻，精力恢复喵！" },
+      "coffee_blend": { "name": "鬼人药特饮", "bubble": "喝完鬼人药浑身冒红光，干活效率暴涨喵！" },
+      "guitar_pick": { "name": "圆滚滚橡子护符", "bubble": "送给本喵的新橡子护符吗？压压帽檐好害羞喵~" }
+    }
+  },
+  "states": {
+    "idle": "idle.png",
+    "idle_blink": "idle_blink.png",
+    "hover": "hover.png",
+    "drag": "drag.png",
+    "file_catch": "file_catch.png",
+    "eat_open": "eat_open.png",
+    "eat_chew": "eat_chew.png",
+    "inspect_file": "inspect_file.png",
+    "thinking": "thinking.png",
+    "searching": "searching.png",
+    "reading": "reading.png",
+    "speaking": "speaking.png",
+    "happy": "happy.png",
+    "error": "error.png",
+    "sleep": "sleep.png",
+    "tea": "tea.png",
+    "peek_left": "peek_left.png",
+    "peek_right": "peek_right.png",
+    "pet_head": "pet_head.png",
+    "eat_cake": "eat_cake.png",
+    "practice_guitar": "practice_guitar.png",
+    "study_desk": "study_desk.png",
+    "hungry": "hungry.png",
+    "stretch": "stretch.png",
+    "walk_left": "walk_left.png",
+    "walk_right": "walk_right.png",
+    "sit_swing": "sit_swing.png",
+    "music_dance": "music_dance.png",
+    "shy_blush": "shy_blush.png",
+    "proud_pose": "proud_pose.png"
+  },
+  "bubbles": {
+    "idle": [
+      "猎人喵！橡子铠甲穿戴完毕，今天接什么委托喵？",
+      "把文件拖给本喵，可以当素材帮你整理分析，或者一口啃掉喵！",
+      "拖到屏幕边边的话，本喵会扶着墙角偷偷观察猎人哦~",
+      "累了的话点「养成」，本喵给你现场烤大块带骨烤肉和泡蜜虫露喵！"
+    ],
+    "happy": [
+      "QUEST CLEAR！任务完美达成喵！"
+    ],
+    "error": [
+      "呜哇！大爆桶炸糊连不上 Kimi 了喵，右键我检查一下设置吧~"
+    ],
+    "sleep": [
+      "在营地盘成猫球打盹中喵……有新委托随时叫醒本喵！"
+    ]
+  }
+}

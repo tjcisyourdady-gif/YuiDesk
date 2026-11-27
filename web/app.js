@@ -1,6 +1,6 @@
 (() => {
   const state = {
-    appVersion: "1.3.0",
+    appVersion: "1.4.0",
     repoUrl: "https://github.com/tjcisyourdady-gif/YuiDesk",
     settings: {},
     providers: [],

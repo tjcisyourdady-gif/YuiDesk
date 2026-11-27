@@ -351,8 +351,15 @@ class PetWindow(QWidget):
     def _pet_box_size(self) -> int:
         scale_pct = max(70, min(160, int(self._settings.get("pet_scale", 100))))
         size_mult = float(self._skin.get("size_multiplier") or 1.0)
-        size_mult = max(0.6, min(2.4, size_mult))
-        return int(176 * scale_pct / 100 * size_mult)
+        size_mult = max(0.6, min(3.8, size_mult))
+        raw = int(176 * scale_pct / 100 * size_mult)
+        # 防止超巨型角色在小屏/高 DPI 下超出屏幕可视高度，最高占屏幕有效高度的 78%
+        screen = QApplication.primaryScreen()
+        if screen:
+            avail = screen.availableGeometry()
+            max_box = max(240, int(avail.height() * 0.78) - 94)
+            raw = min(raw, max_box)
+        return raw
 
     def apply_settings(self, settings: dict[str, Any]) -> None:
         old_top = bool(self._settings.get("pet_always_on_top", False))
@@ -399,8 +406,12 @@ class PetWindow(QWidget):
         if not screen:
             return
         avail = screen.availableGeometry()
-        x = avail.right() - self.width() - 60
-        y = avail.top() + int(avail.height() * 0.22)
+        x = avail.right() - self.width() - 36
+        # 超巨型角色（如哥斯拉）稳稳立在桌面右下角地面上方，更有巨兽镇场感
+        if float(self._skin.get("size_multiplier") or 1.0) >= 2.0:
+            y = max(avail.top() + 12, avail.bottom() - self.height() - 12)
+        else:
+            y = avail.top() + int(avail.height() * 0.22)
         self.move(x, y)
 
     def set_hungry_flag(self, is_hungry: bool) -> None:
@@ -482,7 +493,8 @@ class PetWindow(QWidget):
         if state == "file_catch":
             return assets.get("file_catch") or assets.get("happy") or assets.get("idle", "")
         if state == "idle":
-            if self._is_hungry and assets.get("hungry"):
+            # 饿肚子时仅在待机轮播里偶尔展示 grumpy 提醒，不再永久覆盖霸气默认待机姿势
+            if self._idle_submode == "hungry" and assets.get("hungry"):
                 return assets["hungry"]
             if self._idle_submode == "guitar" and assets.get("practice_guitar"):
                 return assets["practice_guitar"]
@@ -654,20 +666,21 @@ class PetWindow(QWidget):
         if (
             self._settings.get("pet_auto_walk", True)
             and self._edge_side is None
-            and not self._is_hungry
             and roll < 0.22
         ):
             self._start_stroll()
             return
-        if roll < 0.36:
+        if self._is_hungry and roll < 0.34:
+            self._idle_submode = "hungry"
+        elif roll < 0.44:
             self._idle_submode = "sit_swing"
-        elif roll < 0.50:
+        elif roll < 0.56:
             self._idle_submode = "music_dance"
-        elif roll < 0.64:
+        elif roll < 0.68:
             self._idle_submode = "guitar"
-        elif roll < 0.76:
+        elif roll < 0.78:
             self._idle_submode = "tea"
-        elif roll < 0.85:
+        elif roll < 0.86:
             self._idle_submode = "stretch"
         elif roll < 0.92:
             self._idle_submode = "study"

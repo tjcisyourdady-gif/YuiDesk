@@ -93,14 +93,23 @@ class ChatWindow(QWidget):
         h = self._dialog_height
         self.resize(w, h)
 
-        # 若桌宠下方空间不足，向上微移桌宠确保对话框紧贴在桌宠正下方
-        if avail.bottom() - pet_geo.bottom() < h + 10:
-            new_pet_y = max(avail.top() + 8, avail.bottom() - h - pet_geo.height() - 10)
-            self._anchor_pet.move(pet_geo.x(), new_pet_y)
-            pet_geo = self._anchor_pet.frameGeometry()
-
-        tx = pet_geo.center().x() - w // 2
-        ty = pet_geo.bottom() + 2
+        # 若桌宠本身是巨型体型（如哥斯拉）导致「桌宠+对话框」竖向放不下，则优雅停靠在桌宠身旁（优先左侧）
+        if pet_geo.height() + h + 16 > avail.height():
+            if pet_geo.left() - avail.left() >= w + 12:
+                tx = pet_geo.left() - w - 6
+            elif avail.right() - pet_geo.right() >= w + 12:
+                tx = pet_geo.right() + 6
+            else:
+                tx = avail.left() + 12
+            ty = pet_geo.bottom() - h
+        else:
+            # 常规尺寸桌宠：紧贴在桌宠正下方，下方空间不足时微移桌宠
+            if avail.bottom() - pet_geo.bottom() < h + 10:
+                new_pet_y = max(avail.top() + 8, avail.bottom() - h - pet_geo.height() - 10)
+                self._anchor_pet.move(pet_geo.x(), new_pet_y)
+                pet_geo = self._anchor_pet.frameGeometry()
+            tx = pet_geo.center().x() - w // 2
+            ty = pet_geo.bottom() + 2
         tx = max(avail.left() + 8, min(avail.right() - w - 8, tx))
         ty = max(avail.top() + 8, min(avail.bottom() - h - 8, ty))
         self.move(tx, ty)

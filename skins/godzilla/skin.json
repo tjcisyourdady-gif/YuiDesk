@@ -2,10 +2,10 @@
   "id": "godzilla",
   "name": "深海怪兽王·哥斯拉（巨型 30 帧全动画）",
   "author": "YuiDesk",
-  "description": "巨型体型怪兽之王桌面伙伴：暗岩灰装甲鳞片、发光电光蓝背鳍与标志性小短手，默认近 2 倍超大体型，全套 30 帧怪兽专属动画（原子吐息、啃核能电池、泡温泉降温、巡视微缩城市、怪兽胜利蹦迪、扒边偷看）",
+  "description": "巨型体型怪兽之王桌面伙伴：暗岩灰装甲鳞片、发光电光蓝背鳍与标志性小短手，默认近 3 倍超大巨兽体型（约 500px 占半屏高），全套 30 帧怪兽专属动画（原子吐息、啃核能电池、泡温泉降温、巡视微缩城市、怪兽胜利蹦迪、扒边偷看）",
   "render_mode": "image",
   "accent_color": "#2AB7E8",
-  "size_multiplier": 1.85,
+  "size_multiplier": 2.85,
   "default_persona_id": "assistant",
   "file_anchors": {
     "eat_x": 0.68,

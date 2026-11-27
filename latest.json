@@ -1,18 +1,18 @@
 {
-  "version": "1.3.0",
+  "version": "1.4.0",
   "released_at": "2026-11-27",
-  "notes": "1. 重磅新增「深海怪兽王·哥斯拉」30 帧全动画巨型皮肤，专属 1.85 倍超大巨兽体型（约 325px），升级后自动切换登场（随时可在右键菜单切回小狐狸/轻音少女）\n2. 30 帧全套怪兽原创动作：原子吐息回复、啃核能小电池、泡海面温泉降温、背鳍蓄能、巡视微缩城市、怪兽胜利蹦迪、短手害羞捂脸、扒边偷看\n3. 养成面板同步专属「怪兽补给站」互动与道具文案，支持角色独立体型倍率（size_multiplier）自动贴合屏幕边界",
+  "notes": "1. 全新重磅角色「怪物猎人·橡子艾露猫（30 帧全动画）」登场！经典橡子头盔、橡子铠甲、亮红猎人领巾与木槌武器，全套怪猎经典动作（旋转烤肉架、啃烤熟的生肉、回复蜜虫露、吹奏回复笛、导虫望远镜、大爆桶炸糊、营地补给箱摸鱼）与专属「艾露猫食堂」养成\n2. 同步升级「深海怪兽王·哥斯拉」：体型暴涨至真正的 2.85x 巨兽级（约 500px 占半屏高），重绘霸气催饭动作告别哭哭啼啼，且呼出对话框时智能停靠巨兽身旁不遮挡\n3. 升级自动换上艾露猫，随时可在右键菜单「切换角色形象」在艾露猫、巨型哥斯拉、小狐狸、轻音少女间一键自由切换",
   "min_patch_version": "1.0.0",
   "patch": {
     "filename": "YuiDesk_patch.zip",
-    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.3.0/YuiDesk_patch.zip",
-    "sha256": "7dfeda132cb5e05bfbc4373e206cd7f11db07f438d9bc860162e5dfa7e433fb0",
-    "size_bytes": 20599190
+    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.4.0/YuiDesk_patch.zip",
+    "sha256": "4b1a07355ed77771fbf746c26e58e58ea73b03098f06862878abe68fa565d67a",
+    "size_bytes": 28045210
   },
   "full": {
     "filename": "YuiDesk_portable.zip",
-    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.3.0/YuiDesk_portable.zip",
-    "sha256": "8c991e8790c8134fbbd8640e98e5da6df069e38ff7e47d9dc10a468677628254",
-    "size_bytes": 342696820
+    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.4.0/YuiDesk_portable.zip",
+    "sha256": "f252b26a669c54ef58cbe55d3a94fc8cb4cd53b5aed0ba0bdee1522d9cf6c697",
+    "size_bytes": 350146270
   }
 }
