@@ -1,7 +1,8 @@
 ﻿# 一键打包 YuiDesk（含桌宠全动画皮肤 + 极简前端 + Kimi 本机引擎，不含任何个人账号隐私）
 # 常规代码更新默认只将程序与前端打进轻量补丁包（约 11 MB）；若新增/修改了角色皮肤图片，请附加 -IncludeSkins
 param(
-    [switch]$IncludeSkins
+    [switch]$IncludeSkins,
+    [string]$PatchSkin = ""
 )
 $ErrorActionPreference = "Stop"
 
@@ -162,6 +163,11 @@ if ($IncludeSkins) {
     Copy-Item -Recurse -Force (Join-Path $distDir "_internal\skins") (Join-Path $patchStage "_internal\skins")
     Copy-Item -Recurse -Force (Join-Path $distDir "skins") (Join-Path $patchStage "skins")
     Write-Host "    补丁包模式：含全量角色皮肤图片" -ForegroundColor Gray
+} elseif ($PatchSkin) {
+    $skinDst = Join-Path $patchStage "_internal\skins\$PatchSkin"
+    New-Item -ItemType Directory -Force -Path (Split-Path $skinDst -Parent) | Out-Null
+    Copy-Item -Recurse -Force (Join-Path $distDir "_internal\skins\$PatchSkin") $skinDst
+    Write-Host "    补丁包模式：程序+前端+新增皮肤 [$PatchSkin]（增量极速下载）" -ForegroundColor Gray
 } else {
     Write-Host "    补丁包模式：超轻量程序+前端补丁（约 11 MB，极速下载）" -ForegroundColor Gray
 }
@@ -195,8 +201,9 @@ manifest = {
     'version': APP_VERSION,
     'released_at': time.strftime('%Y-%m-%d'),
     'notes': (
-        '1. 修复对话框与养成面板层级：在桌面模式下与桌宠严格处于同一桌面层（WindowStaysOnBottomHint），绝不浮在其他软件上方\n'
-        '2. 托盘/快捷键协同置顶：从右下角托盘图标或 Alt+Space 唤醒对话时，桌宠与对话框一起临时浮到最上层；点击「收起」或按 Esc 后自动一起回落回桌面层'
+        '1. 重磅新增「深海怪兽王·哥斯拉」30 帧全动画巨型皮肤，专属 1.85 倍超大巨兽体型（约 325px），升级后自动切换登场（随时可在右键菜单切回小狐狸/轻音少女）\n'
+        '2. 30 帧全套怪兽原创动作：原子吐息回复、啃核能小电池、泡海面温泉降温、背鳍蓄能、巡视微缩城市、怪兽胜利蹦迪、短手害羞捂脸、扒边偷看\n'
+        '3. 养成面板同步专属「怪兽补给站」互动与道具文案，支持角色独立体型倍率（size_multiplier）自动贴合屏幕边界'
     ),
     'min_patch_version': '1.0.0',
     'patch': {

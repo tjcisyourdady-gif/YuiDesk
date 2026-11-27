@@ -25,7 +25,7 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "permission_level": "standard",  # readonly | standard | full
     "kimi_cli_path": "",
     "active_persona_id": "assistant",
-    "active_skin_id": "default_sprite",
+    "active_skin_id": "godzilla",
     "theme": "light",
     "web_search_enabled": False,
     "thinking_enabled": False,
@@ -164,6 +164,20 @@ class Database:
                 )
                 conn.execute(
                     "INSERT INTO settings (key, value) VALUES ('_migrated_desktop_only_v125', 'true') "
+                    "ON CONFLICT(key) DO UPDATE SET value = 'true'"
+                )
+
+            # v1.3.0 一次性迁移：自动为既有用户切换至全新巨型哥斯拉皮肤（随时可在右键菜单切回小狐狸/轻音少女）
+            mig_gz = conn.execute(
+                "SELECT value FROM settings WHERE key = '_migrated_godzilla_skin_v130'"
+            ).fetchone()
+            if not mig_gz:
+                conn.execute(
+                    "INSERT INTO settings (key, value) VALUES ('active_skin_id', '\"godzilla\"') "
+                    "ON CONFLICT(key) DO UPDATE SET value = '\"godzilla\"'"
+                )
+                conn.execute(
+                    "INSERT INTO settings (key, value) VALUES ('_migrated_godzilla_skin_v130', 'true') "
                     "ON CONFLICT(key) DO UPDATE SET value = 'true'"
                 )
 

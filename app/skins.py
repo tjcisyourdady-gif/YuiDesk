@@ -121,6 +121,7 @@ def load_skin_from_dir(skin_dir: Path, source: str = "user") -> dict[str, Any] |
         "has_custom_images": bool(assets),
         "assets": assets,
         "accent_color": meta.get("accent_color") or "#FF7A59",
+        "size_multiplier": float(meta.get("size_multiplier") or 1.0),
         "default_persona_id": meta.get("default_persona_id") or "",
         "file_anchors": meta.get("file_anchors") if isinstance(meta.get("file_anchors"), dict) else {},
         "state_labels": meta.get("state_labels") if isinstance(meta.get("state_labels"), dict) else {},
@@ -150,9 +151,9 @@ def list_skins() -> list[dict[str, Any]]:
                 skins[skin["id"]] = skin
 
     result = list(skins.values())
-    # 内置主角色排在前面（少女 -> 四足小狐狸 -> Q版站姿小狐狸 -> 模板 -> 自定义）
-    order_map = {"default_sprite": 0, "fox_animal": 1, "little_fox": 2, "yui_template": 3}
-    result.sort(key=lambda s: (order_map.get(s["id"], 4), s["name"]))
+    # 内置主角色排在前面（哥斯拉 -> 少女 -> 四足小狐狸 -> Q版站姿小狐狸 -> 模板 -> 自定义）
+    order_map = {"godzilla": 0, "default_sprite": 1, "fox_animal": 2, "little_fox": 3, "yui_template": 4}
+    result.sort(key=lambda s: (order_map.get(s["id"], 5), s["name"]))
     return result
 
 

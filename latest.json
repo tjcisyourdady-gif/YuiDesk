@@ -1,18 +1,18 @@
 {
-  "version": "1.2.6",
-  "released_at": "2026-11-26",
-  "notes": "1. 修复对话框与养成面板层级：在桌面模式下与桌宠严格处于同一桌面层（WindowStaysOnBottomHint），绝不浮在其他软件上方\n2. 托盘/快捷键协同置顶：从右下角托盘图标或 Alt+Space 唤醒对话时，桌宠与对话框一起临时浮到最上层；点击「收起」或按 Esc 后自动一起回落回桌面层",
+  "version": "1.3.0",
+  "released_at": "2026-11-27",
+  "notes": "1. 重磅新增「深海怪兽王·哥斯拉」30 帧全动画巨型皮肤，专属 1.85 倍超大巨兽体型（约 325px），升级后自动切换登场（随时可在右键菜单切回小狐狸/轻音少女）\n2. 30 帧全套怪兽原创动作：原子吐息回复、啃核能小电池、泡海面温泉降温、背鳍蓄能、巡视微缩城市、怪兽胜利蹦迪、短手害羞捂脸、扒边偷看\n3. 养成面板同步专属「怪兽补给站」互动与道具文案，支持角色独立体型倍率（size_multiplier）自动贴合屏幕边界",
   "min_patch_version": "1.0.0",
   "patch": {
     "filename": "YuiDesk_patch.zip",
-    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.6/YuiDesk_patch.zip",
-    "sha256": "1cb6436e922a814a9158e9de1bc448774cfe1254be92058f44f7201f1a9920c6",
-    "size_bytes": 11544441
+    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.3.0/YuiDesk_patch.zip",
+    "sha256": "7dfeda132cb5e05bfbc4373e206cd7f11db07f438d9bc860162e5dfa7e433fb0",
+    "size_bytes": 20599190
   },
   "full": {
     "filename": "YuiDesk_portable.zip",
-    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.2.6/YuiDesk_portable.zip",
-    "sha256": "69349ca7746bf31296f82b55fa6035f2aa3a1a72bb3722ae70ed4c2c3cca5188",
-    "size_bytes": 333644207
+    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.3.0/YuiDesk_portable.zip",
+    "sha256": "8c991e8790c8134fbbd8640e98e5da6df069e38ff7e47d9dc10a468677628254",
+    "size_bytes": 342696820
   }
 }

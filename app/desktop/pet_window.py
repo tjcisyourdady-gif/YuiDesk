@@ -350,10 +350,13 @@ class PetWindow(QWidget):
 
     def _pet_box_size(self) -> int:
         scale_pct = max(70, min(160, int(self._settings.get("pet_scale", 100))))
-        return int(176 * scale_pct / 100)
+        size_mult = float(self._skin.get("size_multiplier") or 1.0)
+        size_mult = max(0.6, min(2.4, size_mult))
+        return int(176 * scale_pct / 100 * size_mult)
 
     def apply_settings(self, settings: dict[str, Any]) -> None:
         old_top = bool(self._settings.get("pet_always_on_top", False))
+        old_w, old_h = self.width(), self.height()
         self._settings = dict(settings)
         self._skin = get_skin(settings.get("active_skin_id", "default_sprite"))
         self._pixmap_cache.clear()
@@ -361,7 +364,17 @@ class PetWindow(QWidget):
         self._reload_media_for_state(self._state)
 
         pet_sz = self._pet_box_size()
-        self.setFixedSize(pet_sz + 56, pet_sz + 94)
+        new_w, new_h = pet_sz + 56, pet_sz + 94
+        self.setFixedSize(new_w, new_h)
+        # 切换超大体型角色（如巨型哥斯拉）时保持锚点在屏幕可视区域内，避免超出右下边缘
+        if (new_w != old_w or new_h != old_h) and self.isVisible():
+            screen = QApplication.primaryScreen()
+            if screen:
+                avail = screen.availableGeometry()
+                nx = max(avail.left() + 8, min(avail.right() - new_w - 8, self.x() - (new_w - old_w) // 2))
+                ny = max(avail.top() + 8, min(avail.bottom() - new_h - 8, self.y() - (new_h - old_h)))
+                self.move(nx, ny)
+                self.moved.emit()
         self._layout_docks()
 
         opacity = max(35, min(100, int(settings.get("pet_opacity", 100)))) / 100.0

@@ -1,0 +1,101 @@
+{
+  "id": "godzilla",
+  "name": "深海怪兽王·哥斯拉（巨型 30 帧全动画）",
+  "author": "YuiDesk",
+  "description": "巨型体型怪兽之王桌面伙伴：暗岩灰装甲鳞片、发光电光蓝背鳍与标志性小短手，默认近 2 倍超大体型，全套 30 帧怪兽专属动画（原子吐息、啃核能电池、泡温泉降温、巡视微缩城市、怪兽胜利蹦迪、扒边偷看）",
+  "render_mode": "image",
+  "accent_color": "#2AB7E8",
+  "size_multiplier": 1.85,
+  "default_persona_id": "assistant",
+  "file_anchors": {
+    "eat_x": 0.68,
+    "eat_y": 0.30,
+    "inspect_x": 0.72,
+    "inspect_y": 0.48
+  },
+  "state_labels": {
+    "speaking": "原子吐息回复",
+    "reading": "研究城市蓝图",
+    "searching": "背鳍声呐扫描",
+    "pet_head": "挠下巴变大狗",
+    "eat_cake": "啃核能小电池",
+    "practice_guitar": "背鳍蓄能充能",
+    "study_desk": "巡视微缩城市",
+    "tea": "海面温泉降温",
+    "sit_swing": "坐地甩大尾巴",
+    "music_dance": "怪兽胜利蹦迪",
+    "stretch": "巨兽大伸懒腰",
+    "shy_blush": "短手害羞捂脸",
+    "proud_pose": "怪兽之王登场"
+  },
+  "care_overrides": {
+    "shop_title": "怪兽补给站（购买后可随时从背包给哥斯拉投喂充能）",
+    "actions": {
+      "pet": { "name": "挠下巴顺鳞", "bubble": "嗷呜……被挠下巴好舒服，怪兽王瞬间变大狗狗~" },
+      "praise": { "name": "夸夸怪兽王", "bubble": "哼哼，背鳍电光拉满！本王就是桌面最强怪兽！" },
+      "music": { "name": "怪兽胜利蹦迪", "bubble": "咚！咚！咚！跳起经典怪兽胜利舞步！" },
+      "sit": { "name": "坐地甩大尾巴", "bubble": "一屁股坐下来，大尾巴晃得桌面微微震动~" },
+      "guitar": { "name": "背鳍蓄能训练", "bubble": "电光蓝背鳍充能完毕！顺便震出 22 枚零花钱" },
+      "study": { "name": "巡视微缩城市", "bubble": "小心翼翼摆弄小高楼模型，探索经验与零花钱涨啦" },
+      "stretch": { "name": "巨兽伸懒腰", "bubble": "哈啊——巨口打个大哈欠，活动活动巨型尾巴！" },
+      "nap": { "name": "盘尾休眠充能", "bubble": "盘起大尾巴进入深海节能休眠模式，Zzz..." }
+    },
+    "items": {
+      "black_tea": { "name": "海面温泉降温", "bubble": "头顶小毛巾泡个温泉降降温，背鳍不发烫啦~" },
+      "dorayaki": { "name": "高能铀棒脆饼", "bubble": "嘎嘣脆！能量瞬间拉满！" },
+      "strawberry_cake": { "name": "核能小电池点心", "bubble": "滋滋发光的核能小电池，怪兽王最爱的零食！" },
+      "matcha_pudding": { "name": "深海荧光海带冻", "bubble": "冰冰凉凉的深海海带冻，一口吞掉！" },
+      "coffee_blend": { "name": "高压雷电特饮", "bubble": "吨吨吨喝完雷电特饮，背鳍亮度飙升 200%！" },
+      "guitar_pick": { "name": "微缩模型小高楼", "bubble": "送给我的新模型大楼吗？小短手害羞地抱好~" }
+    }
+  },
+  "states": {
+    "idle": "idle.png",
+    "idle_blink": "idle_blink.png",
+    "hover": "hover.png",
+    "drag": "drag.png",
+    "file_catch": "file_catch.png",
+    "eat_open": "eat_open.png",
+    "eat_chew": "eat_chew.png",
+    "inspect_file": "inspect_file.png",
+    "thinking": "thinking.png",
+    "searching": "searching.png",
+    "reading": "reading.png",
+    "speaking": "speaking.png",
+    "happy": "happy.png",
+    "error": "error.png",
+    "sleep": "sleep.png",
+    "tea": "tea.png",
+    "peek_left": "peek_left.png",
+    "peek_right": "peek_right.png",
+    "pet_head": "pet_head.png",
+    "eat_cake": "eat_cake.png",
+    "practice_guitar": "practice_guitar.png",
+    "study_desk": "study_desk.png",
+    "hungry": "hungry.png",
+    "stretch": "stretch.png",
+    "walk_left": "walk_left.png",
+    "walk_right": "walk_right.png",
+    "sit_swing": "sit_swing.png",
+    "music_dance": "music_dance.png",
+    "shy_blush": "shy_blush.png",
+    "proud_pose": "proud_pose.png"
+  },
+  "bubbles": {
+    "idle": [
+      "嗷呜——怪兽之王正在镇守你的桌面，有什么任务交给我？",
+      "把文件拖进我嘴里，直接一口吞掉或者帮你拆解分析！",
+      "把我拖到屏幕边缘，我会像扒着摩天大楼一样探头偷看你",
+      "别看我体型这么大，摸摸我的脑袋还是会乖乖享受的"
+    ],
+    "happy": [
+      "嗷呜！任务全部碾压搞定！"
+    ],
+    "error": [
+      "咳咳……原子吐息过热连不上 Kimi 了，右键我打开设置检查一下吧"
+    ],
+    "sleep": [
+      "盘起大尾巴进入深海休眠中……有事随时戳醒本王"
+    ]
+  }
+}
