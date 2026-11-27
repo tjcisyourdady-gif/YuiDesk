@@ -151,9 +151,17 @@ def list_skins() -> list[dict[str, Any]]:
                 skins[skin["id"]] = skin
 
     result = list(skins.values())
-    # 内置主角色排在前面（艾露猫 -> 巨型哥斯拉 -> 轻音少女 -> 四足小狐狸 -> Q版小狐狸 -> 模板 -> 自定义）
-    order_map = {"palico": 0, "godzilla": 1, "default_sprite": 2, "fox_animal": 3, "little_fox": 4, "yui_template": 5}
-    result.sort(key=lambda s: (order_map.get(s["id"], 6), s["name"]))
+    # 内置主角色排在前面（水芸绘本猫 Kit T. -> 橡子艾露猫 -> 巨型哥斯拉 -> 轻音少女 -> 四足小狐狸 -> Q版小狐狸 -> 模板 -> 自定义）
+    order_map = {
+        "kit_t": 0,
+        "palico": 1,
+        "godzilla": 2,
+        "default_sprite": 3,
+        "fox_animal": 4,
+        "little_fox": 5,
+        "yui_template": 6,
+    }
+    result.sort(key=lambda s: (order_map.get(s["id"], 7), s["name"]))
     return result
 
 

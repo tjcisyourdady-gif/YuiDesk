@@ -25,7 +25,7 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "permission_level": "standard",  # readonly | standard | full
     "kimi_cli_path": "",
     "active_persona_id": "assistant",
-    "active_skin_id": "palico",
+    "active_skin_id": "kit_t",
     "theme": "light",
     "web_search_enabled": False,
     "thinking_enabled": False,
@@ -167,17 +167,17 @@ class Database:
                     "ON CONFLICT(key) DO UPDATE SET value = 'true'"
                 )
 
-            # v1.4.0 一次性迁移：自动为既有用户切换至全新怪物猎人·橡子艾露猫皮肤（随时可在右键菜单切回巨型哥斯拉/小狐狸/轻音少女）
-            mig_palico = conn.execute(
-                "SELECT value FROM settings WHERE key = '_migrated_palico_skin_v140'"
+            # v1.4.1 一次性迁移：自动为既有用户切换至全新怪物猎人崛起·水芸绘本猫 Kit T. 皮肤（随时可在右键菜单切回橡子艾露猫/巨型哥斯拉/小狐狸/轻音少女）
+            mig_kit_t = conn.execute(
+                "SELECT value FROM settings WHERE key = '_migrated_kit_t_skin_v141'"
             ).fetchone()
-            if not mig_palico:
+            if not mig_kit_t:
                 conn.execute(
-                    "INSERT INTO settings (key, value) VALUES ('active_skin_id', '\"palico\"') "
-                    "ON CONFLICT(key) DO UPDATE SET value = '\"palico\"'"
+                    "INSERT INTO settings (key, value) VALUES ('active_skin_id', '\"kit_t\"') "
+                    "ON CONFLICT(key) DO UPDATE SET value = '\"kit_t\"'"
                 )
                 conn.execute(
-                    "INSERT INTO settings (key, value) VALUES ('_migrated_palico_skin_v140', 'true') "
+                    "INSERT INTO settings (key, value) VALUES ('_migrated_kit_t_skin_v141', 'true') "
                     "ON CONFLICT(key) DO UPDATE SET value = 'true'"
                 )
 

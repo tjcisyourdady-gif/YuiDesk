@@ -1,0 +1,104 @@
+{
+  "id": "kit_t",
+  "name": "怪物猎人崛起·水芸绘本猫 Kit T.（30 帧实机全动画）",
+  "author": "YuiDesk",
+  "description": "100% 还原《怪物猎人崛起：曙光》水芸《狩猎指南书》官方「猫系列（Kit T.）」实机毛毡玩偶建模：高尖靛蓝猫耳头套、固定呆滞 oωo 玩偶脸、大圆球猫爪、圆滚滚米色肚腩与深灰蓝忍者围巾，全套 30 帧炎火村原版动作（猫尾草逗猫、举高高、治疗泡泡、强化咆哮、应援太鼓、猫式击龙枪、巧使神签、翔虫侦察、吃三色兔团子、大爆桶 G）",
+  "render_mode": "image",
+  "accent_color": "#4A569E",
+  "size_multiplier": 1.16,
+  "default_persona_id": "yui_cheerful",
+  "file_anchors": {
+    "eat_x": 0.68,
+    "eat_y": 0.36,
+    "inspect_x": 0.72,
+    "inspect_y": 0.50
+  },
+  "state_labels": {
+    "speaking": "强化咆哮",
+    "searching": "招翔虫侦察",
+    "reading": "翻水芸绘本",
+    "thinking": "巧使神签思考",
+    "error": "爆桶炸晕了喵",
+    "drag": "炎火村举高高",
+    "pet_head": "猫尾草逗猫",
+    "eat_cake": "吃三色兔团子",
+    "practice_guitar": "敲应援太鼓",
+    "study_desk": "架猫式击龙枪",
+    "tea": "放治疗泡泡",
+    "sit_swing": "坐补给箱发呆",
+    "music_dance": "炎火村击掌舞",
+    "stretch": "玩木天蓼球",
+    "shy_blush": "双爪捂脸呆萌",
+    "proud_pose": "搬运大爆桶G"
+  },
+  "care_overrides": {
+    "shop_title": "炎火村随从广场与茶馆补给站（购买后可从背包投喂或送给绘本猫 Kit T.）",
+    "actions": {
+      "pet": { "name": "猫尾草逗猫", "bubble": "oωo 盯着猫尾草扑来扑去，玩得超开心喵！" },
+      "praise": { "name": "夸夸绘本老幺", "bubble": "oωo 虽然面无表情，但本喵心里已经举起大爆桶 G 庆祝了喵！" },
+      "music": { "name": "炎火村击掌舞", "bubble": "oωo 哒哒哒！跳完炎火村击掌舞，猎人干劲满满喵！" },
+      "sit": { "name": "坐补给箱发呆", "bubble": "oωo 坐在炎火村补给箱上晃小脚放空大脑中……" },
+      "guitar": { "name": "敲应援太鼓", "bubble": "咚咚咚！应援太鼓攻击力 UP 生效，顺便摸来 22 枚零花钱喵！" },
+      "study": { "name": "架猫式击龙枪", "bubble": "巧使神签抽中大吉！猫式击龙枪全弹发射，熟练度暴涨喵！" },
+      "stretch": { "name": "玩木天蓼球", "bubble": "oωo 蹭蹭发光木天蓼球，全属性强化发动喵！" },
+      "nap": { "name": "营地趴平打盹", "bubble": "oωo 在营地地板上啪叽趴平打盹中，Zzz..." }
+    },
+    "items": {
+      "black_tea": { "name": "治疗泡泡露", "bubble": "咕噜咕噜吹出好多发光治疗泡泡，体力瞬间回满喵！" },
+      "dorayaki": { "name": "炎火大饭团", "bubble": "oωo 最喜欢白米饭团啦！五兄弟里最能吃的就是本喵！" },
+      "strawberry_cake": { "name": "三色兔团子", "bubble": "茶馆现串的粉白绿三色兔团子！团子医疗术发动喵！" },
+      "matcha_pudding": { "name": "团子短期催眠点心", "bubble": "香喷喷的茶点心下肚，干活效率全开喵！" },
+      "coffee_blend": { "name": "木天蓼特饮", "bubble": "喝完木天蓼特饮直接进入兴奋强化状态喵！" },
+      "guitar_pick": { "name": "水芸手绘护符", "bubble": "oωo 是水芸画的新绘本护符吗？双球爪捧紧收藏起来喵~" }
+    }
+  },
+  "states": {
+    "idle": "idle.png",
+    "idle_blink": "idle_blink.png",
+    "hover": "hover.png",
+    "drag": "drag.png",
+    "file_catch": "file_catch.png",
+    "eat_open": "eat_open.png",
+    "eat_chew": "eat_chew.png",
+    "inspect_file": "inspect_file.png",
+    "thinking": "thinking.png",
+    "searching": "searching.png",
+    "reading": "reading.png",
+    "speaking": "speaking.png",
+    "happy": "happy.png",
+    "error": "error.png",
+    "sleep": "sleep.png",
+    "tea": "tea.png",
+    "peek_left": "peek_left.png",
+    "peek_right": "peek_right.png",
+    "pet_head": "pet_head.png",
+    "eat_cake": "eat_cake.png",
+    "practice_guitar": "practice_guitar.png",
+    "study_desk": "study_desk.png",
+    "hungry": "hungry.png",
+    "stretch": "stretch.png",
+    "walk_left": "walk_left.png",
+    "walk_right": "walk_right.png",
+    "sit_swing": "sit_swing.png",
+    "music_dance": "music_dance.png",
+    "shy_blush": "shy_blush.png",
+    "proud_pose": "proud_pose.png"
+  },
+  "bubbles": {
+    "idle": [
+      "oωo 炎火村随从猫 Kit T. 待命中，今天狩猎什么任务喵？",
+      "把文件拖给本喵，可以用收集猫放大镜鉴定，或者当饭团一口啃掉喵！",
+      "拖到屏幕边边的话，本喵会用 oωo 眼神扒墙角偷偷盯着你哦~",
+      "点「养成」可以用猫尾草逗我、敲应援太鼓，还能架猫式击龙枪喵！"
+    ],
+    "happy": [
+      "oωo QUEST CLEAR！任务完美达成喵！"
+    ],
+    "error": [
+      "oωo 大爆桶炸晕连不上 Kimi 了喵，右键我检查一下设置吧~"
+    ],
+    "sleep": [
+      "oωo 在营地趴平打盹中……有新委托随时戳醒本喵！"
+    ]
+  }
+}

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 APP_NAME = "YuiDesk"
-APP_VERSION = "1.4.0"
+APP_VERSION = "1.4.1"
 
 # 官方发布仓库（仅从该固定仓库拉取更新元数据与安装包，不信任任意外部源）
 GITHUB_OWNER = "tjcisyourdady-gif"

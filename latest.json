@@ -1,18 +1,18 @@
 {
-  "version": "1.4.0",
+  "version": "1.4.1",
   "released_at": "2026-11-27",
-  "notes": "1. 全新重磅角色「怪物猎人·橡子艾露猫（30 帧全动画）」登场！经典橡子头盔、橡子铠甲、亮红猎人领巾与木槌武器，全套怪猎经典动作（旋转烤肉架、啃烤熟的生肉、回复蜜虫露、吹奏回复笛、导虫望远镜、大爆桶炸糊、营地补给箱摸鱼）与专属「艾露猫食堂」养成\n2. 同步升级「深海怪兽王·哥斯拉」：体型暴涨至真正的 2.85x 巨兽级（约 500px 占半屏高），重绘霸气催饭动作告别哭哭啼啼，且呼出对话框时智能停靠巨兽身旁不遮挡\n3. 升级自动换上艾露猫，随时可在右键菜单「切换角色形象」在艾露猫、巨型哥斯拉、小狐狸、轻音少女间一键自由切换",
+  "notes": "1. 全新重磅实机还原角色「怪物猎人崛起·水芸绘本猫 Kit T.（30 帧全动画）」登场！100% 还原《怪物猎人崛起：曙光》官方「猫系列」毛毡玩偶建模：高尖靛蓝猫耳头套、固定呆滞 oωo 玩偶脸、大圆球猫爪、圆滚滚米色肚腩与深灰蓝忍者围巾\n2. 全套 30 帧动作 100% 还原游戏实机：猫尾草逗猫、炎火村举高高、治疗泡泡、强化咆哮、应援太鼓、猫式击龙枪、巧使神签、翔虫侦察、水芸《狩猎指南书》、吃三色兔团子、玩木天蓼球、搬运大爆桶G，配套专属「炎火村随从广场与茶馆补给站」养成\n3. 升级自动换上水芸绘本蓝猫 Kit T.，同时完整保留橡子艾露猫、2.85x 巨型不哭版哥斯拉、小狐狸与轻音少女，随时在右键菜单「切换角色形象」一键自由切换",
   "min_patch_version": "1.0.0",
   "patch": {
     "filename": "YuiDesk_patch.zip",
-    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.4.0/YuiDesk_patch.zip",
-    "sha256": "4b1a07355ed77771fbf746c26e58e58ea73b03098f06862878abe68fa565d67a",
-    "size_bytes": 28045210
+    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.4.1/YuiDesk_patch.zip",
+    "sha256": "baa27b7c268649679bdc9c825d1133d70d132231202ce9b408c9568fad6df093",
+    "size_bytes": 33818881
   },
   "full": {
     "filename": "YuiDesk_portable.zip",
-    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.4.0/YuiDesk_portable.zip",
-    "sha256": "f252b26a669c54ef58cbe55d3a94fc8cb4cd53b5aed0ba0bdee1522d9cf6c697",
-    "size_bytes": 350146270
+    "url": "https://github.com/tjcisyourdady-gif/YuiDesk/releases/download/v1.4.1/YuiDesk_portable.zip",
+    "sha256": "816d7d007eb4befe6948b0edf8fafd8ff24bbfc016499f533f475465136a4b49",
+    "size_bytes": 355917611
   }
 }
